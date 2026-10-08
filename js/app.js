@@ -359,13 +359,37 @@
 
   /* ---------- Unlock ---------- */
 
+  // A code unlocks the plan for one person: the one whose details were filled in when it was entered.
+  // Their weight, goal, food and training choices can change; someone else's details lock the plan again.
+  const normName = (s) => String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+
+  function profileOf(state) {
+    return { name: state.values.name || '', sex: state.input.sex, age: state.input.age, height: state.input.height };
+  }
+
+  function samePerson(who, state) {
+    if (!who || !state) return false;
+    const now = profileOf(state);
+    if (who.sex !== now.sex) return false;
+    if (Math.abs(who.age - now.age) > 1) return false; // a birthday during the month is fine
+    if (Math.abs(who.height - now.height) > 2) return false; // allows cm / ft-in rounding
+    const a = normName(who.name);
+    const b = normName(now.name);
+    return !(a && b && a !== b);
+  }
+
   function activeCode() {
     const saved = storage.get(STORE_CODE);
     if (!saved || !saved.code) return null;
     const res = L.checkCode(saved.code, CFG.secret);
-    if (res.ok) return res;
     if (res.reason === 'expired') return { expired: true, expires: res.expires };
-    return null;
+    if (!res.ok) return null;
+    // Codes saved before codes were tied to a person: tie them to the details on this phone now.
+    if (!saved.who && current && !isExample) {
+      saved.who = profileOf(current);
+      storage.set(STORE_CODE, saved);
+    }
+    return { ...res, who: saved.who || null };
   }
 
   const unlockForm = $('#unlockForm');
@@ -374,7 +398,12 @@
     e.preventDefault();
     const res = L.checkCode($('#unlockCode').value, CFG.secret);
     if (res.ok) {
-      storage.set(STORE_CODE, { code: res.code });
+      if (!current || isExample) {
+        unlockErr.textContent = 'Fill in your own details in the calculator above first. The plan is made for the person whose details are filled in.';
+        $('#lab').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      storage.set(STORE_CODE, { code: res.code, who: profileOf(current) });
       unlockErr.textContent = '';
       $('#unlockCode').value = '';
       renderPlan();
@@ -396,19 +425,43 @@
   function renderPlan() {
     const unlock = activeCode();
     const status = $('#planStatus');
-    const locked = !unlock || unlock.expired || !current;
+    const valid = unlock && !unlock.expired;
+    const otherPerson = valid && current && !samePerson(unlock.who, current);
+    const locked = !valid || !current || otherPerson;
 
     $('#lockPlace').textContent = current && current.values.place === 'home' ? 'home' : 'the gym';
     $('#lockDays').textContent = `${current ? current.values.days : 4} days`;
 
     if (!unlock) status.textContent = 'Locked';
     else if (unlock.expired) status.innerHTML = `Expired on ${esc(L.fmtDate(unlock.expires))} · enter a new code`;
+    else if (otherPerson) status.textContent = 'Locked · this person needs their own code';
     else status.innerHTML = `<b>Unlocked</b> · open till ${esc(L.fmtDate(unlock.expires))}`;
+
+    // Explain why the plan is locked when this phone's code belongs to someone else.
+    const note = $('#lockNote');
+    if (otherPerson) {
+      const who = unlock.who;
+      const body = `${who.sex === 'male' ? 'male' : 'female'}, ${who.age}, ${Math.round(who.height)} cm`;
+      const sameName = normName(who.name) && normName(who.name) === normName(current.values.name);
+      if (sameName) {
+        note.textContent = `The code on this phone is for ${who.name} (${body}). These details don't match, so the plan stays locked. If this is you, correct your age or height above.`;
+      } else {
+        const owner = who.name ? who.name : `someone else (${body})`;
+        const person = current.values.name || 'This person';
+        note.textContent = `The code on this phone is for ${owner}. ${person} needs to pay ₹${CFG.price} and enter their own code to see a plan.`;
+      }
+      note.hidden = false;
+    } else {
+      note.hidden = true;
+    }
 
     $('#planLocked').hidden = !locked;
     $('#planOpen').hidden = locked;
     if (locked) {
-      if (unlock && !unlock.expired && !current) status.innerHTML = `<b>Unlocked</b> · fill in your details above to build your plan`;
+      if (valid && !current) status.textContent = 'Fill in your details above to see your plan';
+      dietDays = [];
+      $('#meals').innerHTML = '';
+      $('#sessions').innerHTML = '';
       return;
     }
 
@@ -591,7 +644,8 @@
     }
   });
 
-  // Wipe the saved details so the next person starts fresh. The unlock code stays on this phone.
+  // Wipe the saved details so the next person starts fresh. The unlock code stays on this phone,
+  // still tied to the person it was entered for.
   $('#resetForm').addEventListener('click', () => {
     storage.remove(STORE_FORM);
     fillForm({ ...EXAMPLE, name: '', age: '', weight: '', heightCm: '', heightFt: '', heightIn: '' });

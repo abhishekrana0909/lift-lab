@@ -832,6 +832,13 @@ select {
 }
 .lock-card p { margin: 0; color: var(--steel); }
 .lock-card p b { color: var(--chrome); }
+.lock-card .lock-note {
+  padding: 10px 14px;
+  border-left: 3px solid var(--orange);
+  background: rgba(245, 130, 31, .08);
+  color: var(--chrome);
+  font-size: var(--fs-sm);
+}
 .lock-price { font-family: var(--f-mono); }
 .lock-price b { font-family: var(--f-display); font-size: 2.25rem; font-stretch: 100%; font-weight: 900; color: var(--orange) !important; margin-right: 6px; }
 .unlock { display: grid; gap: 8px; margin-top: 6px; }

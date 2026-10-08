@@ -66,7 +66,8 @@
       `Valid till: ${L.fmtDate(expiry)}`,
       ``,
       `Open ${siteLink()}`,
-      `Go to "Your Plan", type the code and tap Unlock. Your diet and workout plan will open.`,
+      `Fill in your own details in the calculator first, then go to "Your Plan", type the code and tap Unlock. Your diet and workout plan will open.`,
+      `This code is only for you: the plan opens for the details you fill in when you enter it.`,
       ``,
       `– Dwon`,
     ].join('\n');
