@@ -484,6 +484,22 @@
     }
   });
 
+  // Wipe the saved details so the next person starts fresh. The unlock code stays on this phone.
+  $('#resetForm').addEventListener('click', () => {
+    storage.remove(STORE_FORM);
+    fillForm({ ...EXAMPLE, name: '', age: '', weight: '', heightCm: '', heightFt: '', heightIn: '' });
+    showErrors({});
+    // Empty form, example report: the report fills in as soon as the new details are valid.
+    isExample = true;
+    renderReport(compute(EXAMPLE, { quiet: true }));
+    current = null;
+    renderPlan();
+    const note = $('#resetNote');
+    note.textContent = 'Details cleared. Fill in the new person’s details.';
+    setTimeout(() => { note.textContent = ''; }, 4000);
+    $('#name').focus();
+  });
+
   $('#waPaid').addEventListener('click', () => { $('#waPaid').href = waLink(paidMessage()); });
   $('#waPaid').href = waLink(paidMessage());
 

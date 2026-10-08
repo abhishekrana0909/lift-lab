@@ -562,7 +562,10 @@ select {
   border: solid var(--black); border-width: 0 2.5px 2.5px 0; transform: rotate(45deg);
 }
 
+.form-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
 .fine { margin: -12px 0 0; font-size: var(--fs-xs); color: var(--dim); line-height: 1.5; }
+.fine:empty { display: none; }
+#resetNote { color: var(--plate-green); }
 
 /* Report */
 
