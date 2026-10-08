@@ -144,6 +144,7 @@
     rajma:    { name: 'Rajma, cooked',                    unit: 'g',                        per: 100, step: 25,  kcal: 127, p: 8.7,  c: 22.8, f: 0.5, katori: 150 },
     chole:    { name: 'Chole, cooked',                    unit: 'g',                        per: 100, step: 25,  kcal: 164, p: 8.9,  c: 27.4, f: 2.6, katori: 150 },
     besan:    { name: 'Besan (for chilla)',               unit: 'g',                        per: 100, step: 10,  kcal: 387, p: 22.4, c: 57.8, f: 6.7 },
+    moongDal: { name: 'Moong dal (dry, soaked for chilla)', unit: 'g',                      per: 100, step: 10,  kcal: 348, p: 24.5, c: 59,   f: 1.2 },
     chana:    { name: 'Roasted chana',                    unit: 'g',                        per: 100, step: 5,   kcal: 369, p: 22.5, c: 58,   f: 5.2 },
     peanuts:  { name: 'Peanuts, roasted',                 unit: 'g',                        per: 100, step: 5,   kcal: 567, p: 25.8, c: 16.1, f: 49.2 },
     pb:       { name: 'Peanut butter',                    unit: 'tbsp',   units: 'tbsp',    per: 1,   step: 0.5, kcal: 96,  p: 3.6,  c: 3.6,  f: 8.2 },
@@ -179,11 +180,13 @@
 
   const SHAKE = (ctx) => (ctx.vegan ? 'plantPro' : 'whey');
 
+  // `fit` steers how often a meal shows up: 'lean' meals (high volume, low calorie density) more often
+  // for fat loss, 'dense' meals more often for muscle gain, 'workout' meals on training days.
   const MEALS = [
     {
-      key: 'breakfast', label: 'Breakfast', time: '8:00', share: 0.25,
+      key: 'breakfast', label: 'Breakfast', time: '8:00',
       templates: [
-        { diets: ['nonveg', 'egg'], title: 'Masala omelette & toast',
+        { diets: ['nonveg', 'egg'], title: 'Masala omelette & toast', fit: 'lean',
           fixed: [['egg', 2], ['sabzi', 50], ['oil', 1], ['fruit', 1]],
           P: ['eggWhite', 0, 8], C: ['bread', 1, 4] },
         { diets: ['nonveg', 'egg', 'veg', 'vegan'],
@@ -191,10 +194,14 @@
           fixed: (ctx) => [[ctx.vegan ? 'soyMilk' : 'milk', 200], ['banana', 1]],
           P: (ctx) => (ctx.whey ? [SHAKE(ctx), 0, 1.5] : ctx.vegan ? ['soyMilk', 0, 300] : ['greek', 0, 250]),
           C: ['oats', 30, 100], F: ['almonds', 0, 25] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Besan chilla with tofu' : 'Besan chilla with hung curd'),
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Besan chilla with tofu' : 'Besan chilla with hung curd'), fit: 'lean',
           fixed: [['sabzi', 50], ['oil', 1]],
           P: (ctx) => (ctx.vegan ? ['tofu', 0, 200] : ['greek', 0, 250]),
           C: ['besan', 40, 100] },
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Moong dal chilla with tofu' : 'Moong dal chilla with hung curd'), fit: 'lean',
+          fixed: [['sabzi', 75], ['oil', 1]],
+          P: (ctx) => (ctx.vegan ? ['tofu', 0, 200] : ['greek', 0, 250]),
+          C: ['moongDal', 30, 90] },
         { diets: ['nonveg', 'egg', 'veg', 'vegan'],
           title: { nonveg: 'Egg bhurji & roti', egg: 'Egg bhurji & roti', veg: 'Paneer bhurji, roti & hung curd', vegan: 'Tofu bhurji & roti' },
           fixed: (ctx) => (ctx.eggs ? [['egg', 2], ['sabzi', 50], ['oil', 1]]
@@ -202,40 +209,47 @@
             : [['sabzi', 50], ['oil', 1]]),
           P: { nonveg: ['eggWhite', 0, 8], egg: ['eggWhite', 0, 8], veg: ['greek', 0, 250], vegan: ['tofu', 100, 250] },
           C: ['roti', 1, 4] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Poha with peanuts & soy milk' : 'Poha with peanuts & hung curd'),
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Poha with peanuts & soy milk' : 'Poha with peanuts & hung curd'), fit: 'dense',
           fixed: [['peanuts', 10], ['sabzi', 50], ['oil', 1]],
           P: (ctx) => (ctx.vegan ? ['soyMilk', 0, 400] : ['greek', 0, 250]),
           C: ['poha', 40, 90] },
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Peanut butter banana toast & soy milk' : 'Peanut butter banana toast & milk'), fit: 'dense',
+          fixed: [['banana', 1], ['pb', 1]],
+          P: (ctx) => (ctx.vegan ? ['soyMilk', 150, 400] : ['milk', 150, 400]),
+          C: ['bread', 2, 5] },
       ],
     },
     {
-      key: 'mid', label: 'Mid-morning', time: '11:00', share: 0.10,
+      key: 'mid', label: 'Mid-morning', time: '11:00',
       templates: [
         { diets: ['nonveg', 'egg', 'veg', 'vegan'],
           title: (ctx) => (ctx.whey ? 'Protein shake & fruit' : ctx.vegan ? 'Roasted chana & fruit' : 'Greek yogurt & fruit'),
           fixed: [['fruit', 1]],
           P: (ctx) => (ctx.whey ? [SHAKE(ctx), 0.5, 1.5] : ctx.vegan ? ['chana', 15, 60] : ['greek', 100, 300]) },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Sprouts chaat with roasted chana',
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Sprouts chaat with roasted chana', fit: 'lean',
           fixed: [['sprouts', 100], ['salad', 50]],
           P: ['chana', 10, 50] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Makhana & almonds',
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Makhana & almonds', fit: 'dense',
           fixed: [['almonds', 10]],
           P: (ctx) => (ctx.whey ? [SHAKE(ctx), 0, 1] : ['chana', 0, 30]), C: ['makhana', 10, 40] },
       ],
     },
     {
-      key: 'lunch', label: 'Lunch', time: '13:30', share: 0.30,
+      key: 'lunch', label: 'Lunch', time: '13:30',
       templates: [
         { diets: ['nonveg'], title: 'Chicken curry, rice & dal',
           fixed: [['dal', 100], ['sabzi', 100], ['salad', 100]],
           P: ['chicken', 75, 250], C: ['rice', 100, 400], F: ['oil', 0, 3] },
-        { diets: ['nonveg', 'egg', 'veg'], title: 'Rajma chawal & hung-curd raita',
+        { diets: ['nonveg'], title: 'Grilled chicken salad & roti', fit: 'lean',
+          fixed: [['salad', 200], ['sabzi', 50]],
+          P: ['chicken', 75, 250], C: ['roti', 1, 4], F: ['oil', 0, 2] },
+        { diets: ['nonveg', 'egg', 'veg'], title: 'Rajma chawal & hung-curd raita', fit: 'dense',
           fixed: [['rajma', 150], ['salad', 100]],
           P: ['greek', 0, 300], C: ['rice', 75, 350], F: ['oil', 0, 3] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Soya chunk curry & roti',
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Soya chunk curry & roti', fit: 'lean',
           fixed: [['sabzi', 100], ['salad', 100]],
           P: ['soya', 20, 70], C: ['roti', 1, 5], F: ['oil', 1, 3] },
-        { diets: ['nonveg'], title: 'Fish curry, rice & sabzi',
+        { diets: ['nonveg'], title: 'Fish curry, rice & sabzi', fit: 'lean',
           fixed: [['sabzi', 150], ['salad', 100]],
           P: ['fish', 100, 250], C: ['rice', 100, 400], F: ['oil', 0, 3] },
         { diets: ['egg'], title: 'Egg curry & roti',
@@ -244,32 +258,35 @@
         { diets: ['veg'], title: 'Dal, roti, paneer sabzi & raita',
           fixed: [['dal', 150], ['paneer', 50], ['sabzi', 100], ['salad', 100]],
           P: ['greek', 0, 300], C: ['roti', 1, 5], F: ['oil', 0, 2] },
-        { diets: ['vegan'], title: 'Chole, rice & tofu tikka',
+        { diets: ['veg', 'egg'], title: 'Dal, roti, sabzi & hung curd', fit: 'lean',
+          fixed: [['dal', 200], ['sabzi', 150], ['salad', 100]],
+          P: ['greek', 0, 300], C: ['roti', 1, 5], F: ['oil', 0, 2] },
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Chole, rice & tofu tikka' : 'Chole, rice & raita'), fit: 'dense',
           fixed: [['chole', 150], ['salad', 100]],
-          P: ['tofu', 100, 250], C: ['rice', 75, 350], F: ['oil', 0, 2] },
+          P: (ctx) => (ctx.vegan ? ['tofu', 100, 250] : ['greek', 0, 300]), C: ['rice', 75, 350], F: ['oil', 0, 2] },
       ],
     },
     {
-      key: 'evening', label: 'Evening', time: '17:30', share: 0.10,
+      key: 'evening', label: 'Evening', time: '17:30',
       templates: [
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'],
-          title: (ctx) => (ctx.whey ? 'Post-workout shake & banana' : ctx.vegan ? 'Soy milk & banana' : 'Greek yogurt & banana'),
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], fit: 'workout',
+          title: (ctx) => (ctx.whey ? 'Protein shake & banana' : ctx.vegan ? 'Soy milk & banana' : 'Greek yogurt & banana'),
           fixed: [['banana', 1]],
           P: (ctx) => (ctx.whey ? [SHAKE(ctx), 0.5, 1.5] : ctx.vegan ? ['soyMilk', 150, 400] : ['greek', 100, 300]) },
-        { diets: ['nonveg', 'egg'], title: 'Boiled eggs & fruit',
+        { diets: ['nonveg', 'egg'], title: 'Boiled eggs & fruit', fit: 'lean',
           fixed: [['egg', 1], ['fruit', 1]],
           P: ['eggWhite', 0, 5] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Roasted chana & makhana',
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Roasted chana & makhana', fit: 'lean',
           fixed: [['makhana', 15]],
           P: ['chana', 15, 50] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'],
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], fit: 'dense',
           title: (ctx) => (ctx.vegan ? 'Peanut butter toast & soy milk' : 'Peanut butter toast & milk'),
           fixed: [['bread', 1], ['pb', 1]],
           P: (ctx) => (ctx.vegan ? ['soyMilk', 150, 400] : ['milk', 150, 350]) },
       ],
     },
     {
-      key: 'dinner', label: 'Dinner', time: '20:30', share: 0.25,
+      key: 'dinner', label: 'Dinner', time: '20:30',
       templates: [
         { diets: ['nonveg', 'egg', 'veg', 'vegan'],
           title: { nonveg: 'Chicken tikka, roti & sabzi', egg: 'Egg bhurji, roti & sabzi', veg: 'Paneer bhurji, roti, sabzi & raita', vegan: 'Tofu bhurji, roti & sabzi' },
@@ -283,16 +300,54 @@
           fixed: [['dal', 150], ['sabzi', 100]],
           P: (ctx) => (ctx.vegan ? ['tofu', 0, 250] : ['greek', 0, 250]),
           C: ['rice', 75, 350], F: ['oil', 0, 3] },
-        { diets: ['nonveg'], title: 'Grilled chicken & sweet potato',
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: (ctx) => (ctx.vegan ? 'Moong dal khichdi & tofu' : 'Moong dal khichdi & curd'),
+          fixed: (ctx) => (ctx.vegan ? [['dal', 150], ['sabzi', 100]] : [['dal', 150], ['sabzi', 100], ['curd', 100]]),
+          P: (ctx) => (ctx.vegan ? ['tofu', 0, 250] : ['greek', 0, 200]),
+          C: ['rice', 75, 300], F: ['ghee', 0, 2] },
+        { diets: ['nonveg'], title: 'Grilled chicken & sweet potato', fit: 'lean',
           fixed: [['sabzi', 150], ['salad', 100]],
           P: ['chicken', 75, 250], C: ['sweetPotato', 100, 450], F: ['oil', 0, 3] },
-        { diets: ['nonveg', 'egg', 'veg', 'vegan'],
+        { diets: ['nonveg'], title: 'Fish tikka, roti & sabzi', fit: 'lean',
+          fixed: [['sabzi', 150], ['salad', 100]],
+          P: ['fish', 100, 250], C: ['roti', 1, 4], F: ['oil', 0, 2] },
+        { diets: ['egg', 'veg', 'vegan'], title: 'Soya & veg stir-fry with roti', fit: 'lean',
+          fixed: [['sabzi', 200]],
+          P: ['soya', 20, 60], C: ['roti', 1, 4], F: ['oil', 0, 2] },
+        { diets: ['nonveg', 'egg', 'veg', 'vegan'], fit: 'dense',
           title: (ctx) => (ctx.vegan ? 'Soya pulao & salad' : 'Soya pulao & curd'),
           fixed: (ctx) => (ctx.vegan ? [['sabzi', 100], ['salad', 100]] : [['sabzi', 100], ['curd', 100]]),
           P: ['soya', 20, 70], C: ['rice', 75, 350], F: ['oil', 1, 3] },
       ],
     },
+    {
+      // Only used on 6-meal days (bigger calorie targets).
+      key: 'bedtime', label: 'Before bed', time: '22:30',
+      templates: [
+        { diets: ['nonveg', 'egg', 'veg'], title: 'Haldi milk & almonds',
+          fixed: [['almonds', 5]],
+          P: ['milk', 150, 350] },
+        { diets: ['nonveg', 'egg', 'veg'], title: 'Hung curd & roasted chana',
+          fixed: [['chana', 15]],
+          P: ['greek', 100, 250] },
+        { diets: ['vegan'], title: 'Soy milk & peanuts',
+          fixed: [['peanuts', 10]],
+          P: ['soyMilk', 150, 400] },
+      ],
+    },
   ];
+
+  // Share of the day's macros per meal, by how many meals the day has.
+  const SLOT_SHARES = {
+    4: { breakfast: 0.30, lunch: 0.35, evening: 0.10, dinner: 0.25 },
+    5: { breakfast: 0.25, mid: 0.10, lunch: 0.30, evening: 0.10, dinner: 0.25 },
+    6: { breakfast: 0.23, mid: 0.10, lunch: 0.27, evening: 0.10, dinner: 0.22, bedtime: 0.08 },
+  };
+
+  function mealCount(target) {
+    if (target < 1500) return 4;
+    if (target >= 2800) return 6;
+    return 5;
+  }
 
   function pickByDiet(value, ctx) {
     if (typeof value === 'function') return value(ctx);
@@ -411,7 +466,8 @@
 
   // Foods that make a meal feel like "the same thing again" if they show up twice in a day.
   const DISTINCT = { chicken: 'chicken', fish: 'fish', paneer: 'paneer', tofu: 'tofu', soya: 'soya', egg: 'egg', eggWhite: 'egg',
-    makhana: 'makhana', chana: 'chana', rajma: 'rajma', chole: 'chole', besan: 'besan', oats: 'oats', poha: 'poha', sweetPotato: 'sweetPotato' };
+    makhana: 'makhana', chana: 'chana', rajma: 'rajma', chole: 'chole', besan: 'besan', moongDal: 'moongDal', oats: 'oats',
+    poha: 'poha', sweetPotato: 'sweetPotato', pb: 'pb' };
 
   function mainFoods(template, ctx) {
     const ids = (pickByDiet(template.fixed, ctx) || []).map(([id]) => id);
@@ -464,8 +520,8 @@
       }
     };
     const kcalTolerance = Math.max(50, report.target * 0.03);
-    const all = ['lunch', 'dinner', 'breakfast', 'mid', 'evening'];
-    tune('p', ['P'], ['mid', 'evening', 'dinner', 'lunch', 'breakfast'], 6);
+    const all = ['lunch', 'dinner', 'breakfast', 'mid', 'evening', 'bedtime'];
+    tune('p', ['P'], ['mid', 'evening', 'bedtime', 'dinner', 'lunch', 'breakfast'], 6);
     tune('f', ['F'], ['lunch', 'dinner', 'breakfast'], 6);
     tune('kcal', ['C'], ['lunch', 'dinner', 'breakfast', 'mid'], kcalTolerance);
     // Last resort when carbs alone cannot close the gap: move fat, then protein portions.
@@ -475,43 +531,100 @@
 
   const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
+  // Seed from traits that don't change week to week, so a returning client keeps the same rotation
+  // when only their weight changes, while two different people get different plans.
+  function personSeed(input, name) {
+    const who = `${String(name || '').trim().toLowerCase()}|${input.sex}|${input.age}|${Math.round(input.height)}`;
+    return hash(who) % 2147483647;
+  }
+
+  // mulberry32: small seeded random number generator.
+  function seededRandom(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  // A person's own order of meals for one slot. Lean meals get more turns for fat loss, dense meals for muscle gain.
+  function weeklyOrder(slot, ctx, salt) {
+    const options = slot.templates.filter((t) => t.diets.includes(ctx.diet));
+    const list = [];
+    for (const t of options) {
+      let weight = 2;
+      if (t.fit === 'lean') weight += { lose: 2, gain: -1 }[ctx.goal] || 0;
+      if (t.fit === 'dense') weight += { gain: 2, lose: -1 }[ctx.goal] || 0;
+      for (let k = 0; k < Math.max(1, weight); k++) list.push(t);
+    }
+    const rand = seededRandom(ctx.seed ^ salt);
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return { options, list };
+  }
+
+  function chooseTemplate(order, d, used, yesterday, ctx, slotKey, training) {
+    const { options, list } = order;
+    const clash = (t) => mainFoods(t, ctx).some((f) => used.has(f));
+    if (slotKey === 'evening') {
+      // Training days get the protein + fast carbs snack after the workout.
+      const workout = options.find((t) => t.fit === 'workout');
+      if (training && workout && !clash(workout)) return workout;
+    }
+    for (let k = 0; k < list.length; k++) {
+      const t = list[(d * 3 + k) % list.length];
+      if (slotKey === 'evening' && !training && t.fit === 'workout' && options.length > 1) continue;
+      if (t === yesterday && options.length > 2) continue;
+      if (!clash(t)) return t;
+    }
+    return list[(d * 3) % list.length];
+  }
+
   function dietPlan(report, prefs) {
     const ctx = {
       diet: prefs.diet,
       whey: !!prefs.whey,
       vegan: prefs.diet === 'vegan',
       eggs: prefs.diet === 'egg' || prefs.diet === 'nonveg',
+      goal: report.input.goal,
+      seed: personSeed(report.input, prefs.name),
       sf: Math.min(1.9, Math.max(0.55, report.target / 2200)),
     };
+    const count = mealCount(report.target);
+    const shares = SLOT_SHARES[count];
+    const slots = MEALS.filter((s) => shares[s.key]);
+    const orders = slots.map((s, i) => weeklyOrder(s, ctx, Math.imul(i + 1, 0x9e3779b1)));
+    const week = (SPLITS[prefs.days] || SPLITS[4]).week;
+    const yesterday = {};
     const days = [];
     for (let d = 0; d < 7; d++) {
       const used = new Set();
-      const meals = MEALS.map((slot, slotIndex) => {
-        const options = slot.templates.filter((t) => t.diets.includes(ctx.diet));
-        const start = (d + slotIndex * 2) % options.length;
-        // Rotate through the options, skipping any whose main food already appears today.
-        let template = options[start];
-        for (let k = 0; k < options.length; k++) {
-          const candidate = options[(start + k) % options.length];
-          if (!mainFoods(candidate, ctx).some((f) => used.has(f))) { template = candidate; break; }
-        }
+      const session = week[d];
+      const meals = slots.map((slot, i) => {
+        const template = chooseTemplate(orders[i], d, used, yesterday[slot.key], ctx, slot.key, !!session);
+        yesterday[slot.key] = template;
         mainFoods(template, ctx).forEach((f) => used.add(f));
-        const target = {
-          p: report.protein * slot.share,
-          c: report.carbs * slot.share,
-          f: report.fat * slot.share,
-        };
+        const share = shares[slot.key];
+        const target = { p: report.protein * share, c: report.carbs * share, f: report.fat * share };
         return {
           key: slot.key,
-          label: slot.label,
+          label: slot.key === 'evening' && session ? 'Post-workout' : slot.label,
           time: slot.time,
           title: mealTitle(template, ctx),
           items: solveMeal(template, target, ctx),
         };
       });
       correctDay(meals, report);
-      const totals = totalsOf(meals);
-      days.push({ name: DAY_NAMES[d], meals, totals });
+      days.push({
+        name: DAY_NAMES[d],
+        meals,
+        totals: totalsOf(meals),
+        training: session ? SESSIONS[session].name.split(' · ')[0] : null,
+      });
     }
     return days;
   }
@@ -520,50 +633,88 @@
   /* Workout planner                                                     */
   /* ------------------------------------------------------------------ */
 
-  // [beginner, intermediate, advanced] per pattern and location.
+  // [beginner, intermediate, advanced] per pattern and location. Each level lists equivalent choices;
+  // a person's seed picks one, so two people at the same level get different (but equal) exercises.
   const EXERCISES = {
     gym: {
-      squat:   ['Goblet squat', 'Barbell back squat', 'Barbell back squat'],
-      hinge:   ['Dumbbell Romanian deadlift', 'Barbell Romanian deadlift', 'Conventional deadlift'],
-      lunge:   ['Dumbbell walking lunge', 'Dumbbell walking lunge', 'Bulgarian split squat'],
-      legPress:['Leg press', 'Leg press', 'Hack squat or leg press'],
-      quadIso: ['Leg extension', 'Leg extension', 'Leg extension'],
-      hamIso:  ['Lying leg curl', 'Seated leg curl', 'Seated leg curl'],
-      calf:    ['Standing calf raise', 'Standing calf raise', 'Standing calf raise'],
-      hPush:   ['Machine chest press', 'Barbell bench press', 'Barbell bench press'],
-      incPush: ['Incline dumbbell press', 'Incline dumbbell press', 'Incline barbell press'],
-      vPush:   ['Seated dumbbell shoulder press', 'Seated dumbbell shoulder press', 'Standing overhead press'],
-      fly:     ['Pec deck', 'Cable fly', 'Cable fly'],
-      lateral: ['Dumbbell lateral raise', 'Cable lateral raise', 'Cable lateral raise'],
-      vPull:   ['Lat pulldown', 'Pull-ups (use the assisted machine if needed)', 'Weighted pull-ups'],
-      hRow:    ['Seated cable row', 'Chest-supported dumbbell row', 'Barbell row'],
-      rear:    ['Face pull', 'Face pull', 'Reverse pec deck'],
-      biceps:  ['Dumbbell curl', 'EZ-bar curl', 'Incline dumbbell curl'],
-      hammer:  ['Hammer curl', 'Hammer curl', 'Cable hammer curl'],
-      triceps: ['Rope pushdown', 'Rope pushdown', 'Overhead cable extension'],
-      core:    ['Plank', 'Cable crunch', 'Hanging leg raise'],
+      squat:   [['Goblet squat', 'Leg press'], ['Barbell back squat', 'Hack squat', 'Leg press'], ['Barbell back squat', 'Front squat', 'Hack squat']],
+      hinge:   [['Dumbbell Romanian deadlift', 'Cable pull-through'], ['Barbell Romanian deadlift', 'Trap-bar deadlift', 'Dumbbell Romanian deadlift'], ['Conventional deadlift', 'Trap-bar deadlift', 'Barbell Romanian deadlift']],
+      lunge:   [['Dumbbell walking lunge', 'Dumbbell step-up'], ['Dumbbell walking lunge', 'Bulgarian split squat', 'Dumbbell reverse lunge'], ['Bulgarian split squat', 'Barbell walking lunge', 'Deficit reverse lunge']],
+      legPress:[['Leg press'], ['Leg press', 'Hack squat'], ['Hack squat', 'Single-leg leg press']],
+      quadIso: [['Leg extension'], ['Leg extension'], ['Leg extension']],
+      hamIso:  [['Lying leg curl', 'Seated leg curl'], ['Seated leg curl', 'Lying leg curl'], ['Seated leg curl', 'Lying leg curl']],
+      calf:    [['Standing calf raise', 'Seated calf raise'], ['Standing calf raise', 'Seated calf raise'], ['Standing calf raise', 'Seated calf raise']],
+      hPush:   [['Machine chest press', 'Dumbbell bench press'], ['Barbell bench press', 'Dumbbell bench press'], ['Barbell bench press', 'Dumbbell bench press']],
+      incPush: [['Incline dumbbell press', 'Incline machine press'], ['Incline dumbbell press', 'Incline barbell press'], ['Incline barbell press', 'Incline dumbbell press']],
+      vPush:   [['Seated dumbbell shoulder press', 'Machine shoulder press'], ['Seated dumbbell shoulder press', 'Standing overhead press'], ['Standing overhead press', 'Seated dumbbell shoulder press']],
+      fly:     [['Pec deck', 'Cable fly'], ['Cable fly', 'Pec deck'], ['Cable fly', 'Pec deck']],
+      lateral: [['Dumbbell lateral raise', 'Cable lateral raise'], ['Cable lateral raise', 'Dumbbell lateral raise'], ['Cable lateral raise', 'Dumbbell lateral raise']],
+      vPull:   [['Lat pulldown', 'Assisted pull-up machine'], ['Pull-ups (use the assisted machine if needed)', 'Lat pulldown', 'Close-grip pulldown'], ['Weighted pull-ups', 'Pull-ups', 'Wide-grip pulldown']],
+      hRow:    [['Seated cable row', 'Machine row'], ['Chest-supported dumbbell row', 'Seated cable row', 'One-arm dumbbell row'], ['Barbell row', 'Chest-supported T-bar row', 'One-arm dumbbell row']],
+      rear:    [['Face pull', 'Reverse pec deck'], ['Face pull', 'Reverse pec deck'], ['Reverse pec deck', 'Face pull']],
+      biceps:  [['Dumbbell curl', 'Cable curl'], ['EZ-bar curl', 'Incline dumbbell curl', 'Cable curl'], ['Incline dumbbell curl', 'EZ-bar curl', 'Preacher curl']],
+      hammer:  [['Hammer curl', 'Rope cable curl'], ['Hammer curl', 'Rope cable curl'], ['Cable hammer curl', 'Hammer curl']],
+      triceps: [['Rope pushdown', 'Bar pushdown'], ['Rope pushdown', 'Overhead cable extension', 'EZ-bar skull crusher'], ['Overhead cable extension', 'EZ-bar skull crusher', 'Close-grip bench press']],
+      core:    [['Plank', 'Dead bug'], ['Cable crunch', 'Hanging knee raise', 'Plank'], ['Hanging leg raise', 'Ab wheel rollout', 'Cable crunch']],
     },
     home: {
-      squat:   ['Bodyweight squat', 'Bulgarian split squat', 'Bulgarian split squat (backpack)'],
-      hinge:   ['Glute bridge', 'Single-leg Romanian deadlift', 'Single-leg hip thrust'],
-      lunge:   ['Reverse lunge', 'Walking lunge', 'Jump lunge'],
-      legPress:['Step-up on a chair', 'Step-up on a chair', 'Step-up (backpack)'],
-      quadIso: ['Wall sit', 'Wall sit', 'Sissy squat (hold a door frame)'],
-      hamIso:  ['Sliding leg curl (towel on floor)', 'Sliding leg curl (towel on floor)', 'Single-leg sliding curl'],
-      calf:    ['Calf raise on a stair', 'Single-leg calf raise on a stair', 'Single-leg calf raise (backpack)'],
-      hPush:   ['Incline push-up (hands on bed)', 'Push-up', 'Deficit push-up'],
-      incPush: ['Push-up', 'Decline push-up (feet on bed)', 'Archer push-up'],
-      vPush:   ['Pike push-up', 'Pike push-up', 'Elevated pike push-up'],
-      fly:     ['Wide push-up', 'Wide push-up', 'Pseudo-planche push-up'],
-      lateral: ['Lateral raise (water bottles)', 'Lateral raise (backpack or band)', 'Lateral raise (band)'],
-      vPull:   ['Doorway towel row', 'Pull-up (if you have a bar) or band pulldown', 'Pull-up'],
-      hRow:    ['Backpack bent-over row', 'Table row (under a sturdy table)', 'Table row, feet raised'],
-      rear:    ['Prone Y-T-W raise', 'Prone Y-T-W raise', 'Band pull-apart'],
-      biceps:  ['Backpack curl', 'Backpack curl', 'Band curl'],
-      hammer:  ['Towel isometric curl', 'Backpack hammer curl', 'Band hammer curl'],
-      triceps: ['Chair dip', 'Diamond push-up', 'Bodyweight triceps extension'],
-      core:    ['Plank', 'Dead bug', 'Hollow-body hold'],
+      squat:   [['Bodyweight squat', 'Box squat to a chair'], ['Bulgarian split squat', 'Goblet squat (backpack)'], ['Bulgarian split squat (backpack)', 'Pistol squat to a chair']],
+      hinge:   [['Glute bridge', 'Backpack good morning'], ['Single-leg Romanian deadlift', 'Single-leg glute bridge'], ['Single-leg hip thrust', 'Backpack Romanian deadlift']],
+      lunge:   [['Reverse lunge', 'Step-up on a chair'], ['Walking lunge', 'Reverse lunge (backpack)'], ['Jump lunge', 'Deficit reverse lunge']],
+      legPress:[['Step-up on a chair'], ['Step-up on a chair', 'Cossack squat'], ['Step-up (backpack)', 'Cossack squat']],
+      quadIso: [['Wall sit'], ['Wall sit', 'Split-squat hold'], ['Sissy squat (hold a door frame)', 'Wall sit (backpack)']],
+      hamIso:  [['Sliding leg curl (towel on floor)'], ['Sliding leg curl (towel on floor)', 'Single-leg glute bridge'], ['Single-leg sliding curl', 'Nordic curl (feet under the sofa)']],
+      calf:    [['Calf raise on a stair'], ['Single-leg calf raise on a stair'], ['Single-leg calf raise (backpack)']],
+      hPush:   [['Incline push-up (hands on bed)', 'Knee push-up'], ['Push-up', 'Wide push-up'], ['Deficit push-up', 'Archer push-up']],
+      incPush: [['Push-up', 'Incline push-up (hands on chair)'], ['Decline push-up (feet on bed)', 'Push-up'], ['Archer push-up', 'Decline push-up (feet on bed)']],
+      vPush:   [['Pike push-up (feet on floor)'], ['Pike push-up', 'Backpack shoulder press'], ['Elevated pike push-up', 'Wall handstand hold']],
+      fly:     [['Wide push-up'], ['Wide push-up', 'Band chest fly'], ['Pseudo-planche push-up', 'Band chest fly']],
+      lateral: [['Lateral raise (water bottles)'], ['Lateral raise (backpack or band)'], ['Band lateral raise']],
+      vPull:   [['Doorway towel row', 'Band pulldown'], ['Pull-up (if you have a bar) or band pulldown', 'Band pulldown'], ['Pull-up', 'Chin-up']],
+      hRow:    [['Backpack bent-over row', 'Doorway towel row'], ['Table row (under a sturdy table)', 'One-arm backpack row'], ['Table row, feet raised', 'One-arm backpack row with pause']],
+      rear:    [['Prone Y-T-W raise'], ['Prone Y-T-W raise', 'Band pull-apart'], ['Band pull-apart', 'Band face pull']],
+      biceps:  [['Backpack curl', 'Towel curl'], ['Backpack curl', 'Band curl'], ['Band curl', 'Slow chin-up']],
+      hammer:  [['Towel isometric curl'], ['Backpack hammer curl'], ['Band hammer curl']],
+      triceps: [['Chair dip', 'Close-grip incline push-up'], ['Diamond push-up', 'Chair dip'], ['Bodyweight triceps extension', 'Diamond push-up']],
+      core:    [['Plank', 'Dead bug'], ['Dead bug', 'Side plank'], ['Hollow-body hold', 'Lying leg raise']],
     },
+  };
+
+  // Joint-friendly swaps for people aged 45+ or with BMI 30+ (WHO obese).
+  const GENTLE = {
+    'Conventional deadlift': 'Trap-bar deadlift',
+    'Front squat': 'Goblet squat',
+    'Deficit reverse lunge': 'Dumbbell reverse lunge',
+    'Barbell walking lunge': 'Dumbbell step-up',
+    'Hanging leg raise': 'Dead bug',
+    'Ab wheel rollout': 'Plank',
+    'EZ-bar skull crusher': 'Rope pushdown',
+    'Jump lunge': 'Reverse lunge',
+    'Pistol squat to a chair': 'Box squat to a chair',
+    'Bodyweight squat': 'Box squat to a chair',
+    'Deficit push-up': 'Push-up',
+    'Archer push-up': 'Incline push-up (hands on chair)',
+    'Pseudo-planche push-up': 'Wide push-up',
+    'Wall handstand hold': 'Pike push-up',
+    'Elevated pike push-up': 'Pike push-up',
+    'Nordic curl (feet under the sofa)': 'Sliding leg curl (towel on floor)',
+    'Sissy squat (hold a door frame)': 'Wall sit',
+    'Chair dip': 'Close-grip incline push-up',
+    'Hollow-body hold': 'Dead bug',
+  };
+
+  // Sets, reps and rest by goal. `first` is the opening lift for intermediate and advanced lifters.
+  const PRESCRIPTION = {
+    lose:     { first: '6–10', compound: '8–12', iso: '12–15', restC: '90 s–2 min', restI: '45–60 s', isoBonus: 0 },
+    maintain: { first: '6–8',  compound: '8–12', iso: '10–15', restC: '2 min',      restI: '60–90 s', isoBonus: 0 },
+    gain:     { first: '5–8',  compound: '6–10', iso: '10–15', restC: '2–3 min',    restI: '60–90 s', isoBonus: 1 },
+  };
+
+  const FINISHERS = {
+    gym:        '10-min finisher: bike or rower intervals, 30 s hard / 60 s easy.',
+    gymGentle:  '10-min finisher: incline treadmill walk at a brisk pace (no running).',
+    home:       '10-min finisher: 40 s on / 20 s off. Mountain climbers, squats, plank shoulder taps.',
+    homeGentle: '10-min finisher: brisk walk, or march in place with high knees.',
   };
 
   const COMPOUND = new Set(['squat', 'hinge', 'lunge', 'legPress', 'hPush', 'incPush', 'vPush', 'vPull', 'hRow']);
@@ -588,35 +739,54 @@
 
   const LEVEL_INDEX = { beginner: 0, intermediate: 1, advanced: 2 };
 
-  function workoutPlan(prefs, goal) {
+  function workoutPlan(prefs, report) {
+    const input = report.input;
+    const goal = input.goal;
     const lvl = LEVEL_INDEX[prefs.level] ?? 0;
     const place = prefs.place === 'home' ? 'home' : 'gym';
     const split = SPLITS[prefs.days] || SPLITS[4];
     const count = [5, 6, 7][lvl];
     const home = place === 'home';
+    const gentle = input.age >= 45 || report.bmi >= 30;
+    const rx = PRESCRIPTION[goal];
+    const seed = personSeed(input, prefs.name);
+    const occurrences = {};
 
     const sessions = split.week.map((key, i) => {
       if (!key) return { day: DAY_NAMES[i], rest: true };
+      // The second Upper (or Push, ...) day of the week gets the other variant of each lift.
+      const occurrence = (occurrences[key] = (occurrences[key] ?? -1) + 1);
       const s = SESSIONS[key];
       const seen = new Set();
       const exercises = [];
       for (const pattern of s.patterns) {
         if (exercises.length >= count) break;
-        const name = EXERCISES[place][pattern][lvl];
-        if (seen.has(name)) continue;
+        const options = EXERCISES[place][pattern][lvl].map((n) => (gentle && GENTLE[n]) || n);
+        const pick = Math.floor(seededRandom(seed ^ (hash(pattern) % 2147483647))() * options.length);
+        const start = (pick + occurrence) % options.length;
+        let name = null;
+        for (let k = 0; k < options.length; k++) {
+          const candidate = options[(start + k) % options.length];
+          if (!seen.has(candidate)) { name = candidate; break; }
+        }
+        if (!name) continue;
         seen.add(name);
         const compound = COMPOUND.has(pattern);
-        let sets = compound ? [3, 4, 4][lvl] : 3;
+        const sets = compound ? [3, 4, 4][lvl] : 3 + (lvl > 0 ? rx.isoBonus : 0);
         let reps;
-        if (pattern === 'core') reps = /plank|hold|dead bug/i.test(name) ? '30–45 s' : '10–15';
-        else if (pattern === 'quadIso' && /wall sit/i.test(name)) reps = '30–60 s';
-        else if (home) reps = compound ? '8–15' : '12–20';
-        else if (compound) reps = exercises.length === 0 && lvl === 2 ? '5–8' : '6–10';
-        else reps = '10–15';
-        const rest = compound ? '2–3 min' : '60–90 s';
+        if (/dead bug/i.test(name)) reps = '8–12 each side';
+        else if (/plank|hold|wall sit|isometric/i.test(name)) reps = pattern === 'core' ? '30–45 s' : '30–60 s';
+        else if (pattern === 'core') reps = '10–15';
+        else if (home) reps = compound ? (goal === 'lose' ? '12–20' : '8–15') : (goal === 'lose' ? '15–20' : '12–20');
+        else if (compound) reps = exercises.length === 0 && lvl > 0 ? rx.first : rx.compound;
+        else reps = rx.iso;
+        const rest = compound ? rx.restC : rx.restI;
         exercises.push({ name, sets, reps, rest });
       }
-      return { day: DAY_NAMES[i], rest: false, name: s.name, exercises };
+      const finisher = goal === 'lose'
+        ? FINISHERS[(home ? 'home' : 'gym') + (gentle ? 'Gentle' : '')]
+        : null;
+      return { day: DAY_NAMES[i], rest: false, name: s.name, exercises, finisher };
     });
 
     const effort = [
@@ -625,27 +795,39 @@
       'Take the last set of each exercise to 0–1 reps short of failure.',
     ][lvl];
 
-    const cardio = {
-      lose:     'Walk 8,000–10,000 steps a day. Add 3 sessions of 25–35 min brisk walking or cycling, after lifting or on rest days.',
+    let cardio = {
+      lose:     'Walk 8,000–10,000 steps a day. On rest days add 25–35 min of brisk walking or cycling.',
       maintain: 'Walk 7,000–9,000 steps a day. Add 2 sessions of 20–30 min easy cardio a week.',
       gain:     'Walk 6,000–8,000 steps a day. Keep cardio to 1–2 short sessions a week so you stay in a surplus.',
     }[goal];
+    if (gentle) cardio += ' Keep it low-impact: walking, cycling or swimming, no running or jumping for now.';
 
     const progression = home
       ? 'When you hit the top of the rep range on every set, move to the harder version of the exercise or add weight to a backpack.'
       : 'When you hit the top of the rep range on every set, add 2.5 kg to upper-body lifts or 5 kg to lower-body lifts next session.';
 
+    const warmup = gentle
+      ? '8–10 minutes: easy cycling or walking, then hip circles, arm circles and bodyweight squats. Then 2 lighter sets of your first exercise.'
+      : '5 minutes of light cardio, then 2 lighter sets of your first exercise.';
+
+    const notes = [
+      { label: 'Warm-up', text: warmup },
+      { label: 'Effort', text: effort },
+      { label: 'Progression', text: progression },
+      { label: 'Cardio & steps', text: cardio },
+    ];
+    if (gentle) {
+      notes.push({ label: 'Joint-friendly', text: 'Based on your age or weight, jumps, hanging moves and heavy floor deadlifts are swapped for safer versions that train the same muscles.' });
+    }
+
     return {
       split: split.name,
       splitNote: split.note || '',
       place,
+      goal,
+      gentle,
       sessions,
-      notes: [
-        { label: 'Warm-up', text: '5 minutes of light cardio, then 2 lighter sets of your first exercise.' },
-        { label: 'Effort', text: effort },
-        { label: 'Progression', text: progression },
-        { label: 'Cardio & steps', text: cardio },
-      ],
+      notes,
     };
   }
 

@@ -31,7 +31,7 @@ Logo badalna ho to nayi image inhi naamon se `assets` mein daal do.
 
 QR badalna ho to nayi image `assets/upi-qr.png` naam se daal do.
 
-**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261008b` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261009a`). Warna logon ke phone purani cached file chalate rahenge.
+**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261008c` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261009a`). Warna logon ke phone purani cached file chalate rahenge.
 
 ## Client ka plan kaise unlock hota hai
 

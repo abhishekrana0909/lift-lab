@@ -788,6 +788,40 @@ select {
 .lock-link { font-size: var(--fs-sm); color: var(--orange); text-decoration: none; }
 .lock-link:hover { text-decoration: underline; }
 
+.plan-for {
+  margin: 0 0 20px;
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  align-items: baseline;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--orange);
+  background: var(--iron);
+  font-family: var(--f-mono);
+  font-size: var(--fs-sm);
+  color: var(--steel);
+}
+.plan-for b {
+  font-family: var(--f-display);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  font-stretch: 80%;
+  text-transform: uppercase;
+  color: var(--chrome);
+  margin-right: 4px;
+}
+.day-kind { color: var(--dim); }
+.day-kind.is-train { color: var(--orange); }
+.finisher {
+  margin: 0;
+  padding: 12px 18px;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  color: var(--chrome);
+  background: linear-gradient(90deg, rgba(245, 130, 31, .12), transparent 70%);
+}
+
 .plan-switch {
   display: inline-grid;
   grid-auto-flow: column;

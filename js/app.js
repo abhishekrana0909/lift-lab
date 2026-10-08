@@ -338,14 +338,38 @@
       return;
     }
 
-    const { values, report } = current;
-    dietDays = L.dietPlan(report, { diet: values.diet, whey: values.whey });
+    const { values, input, report } = current;
+    const prefs = {
+      name: values.name,
+      diet: values.diet,
+      whey: values.whey,
+      level: values.level,
+      place: values.place,
+      days: Number(values.days),
+    };
+    dietDays = L.dietPlan(report, prefs);
+    renderPlanFor(values, input, report);
     const today = (new Date().getDay() + 6) % 7; // Monday = 0
     activeDay = Math.min(activeDay, 6);
     if (!renderPlan.daySet) { activeDay = today; renderPlan.daySet = true; }
     renderDayTabs();
     renderDay();
-    renderWorkout(L.workoutPlan({ level: values.level, place: values.place, days: Number(values.days) }, current.input.goal));
+    renderWorkout(L.workoutPlan(prefs, report));
+  }
+
+  // Who this plan was built for, so a new person can see at a glance that the plan is theirs.
+  function renderPlanFor(values, input, r) {
+    const food = $('#diet').selectedOptions[0].textContent;
+    const level = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' }[values.level];
+    const who = values.name ? `${values.name}'s plan` : 'Your plan';
+    $('#planFor').innerHTML = `
+      <b>${esc(who)}</b>
+      <span>${input.sex === 'male' ? 'Male' : 'Female'}, ${input.age}</span>
+      <span>${fmt(input.weight, input.weight % 1 ? 1 : 0)} kg</span>
+      <span>${esc(L.GOALS[input.goal].label)}</span>
+      <span>${fmt(r.target)} kcal · ${r.protein} g protein</span>
+      <span>${esc(food)}</span>
+      <span>${level} · ${values.place === 'home' ? 'Home' : 'Gym'} ${values.days} days</span>`;
   }
 
   function renderDayTabs() {
@@ -376,7 +400,7 @@
     const t = day.totals;
     const match = Math.round((1 - Math.abs(t.kcal - r.target) / r.target) * 100);
     $('#dayTotal').innerHTML = `
-      <span>${day.name}</span>
+      <span>${day.name} · <span class="day-kind${day.training ? ' is-train' : ''}">${day.training ? `Training · ${esc(day.training)}` : 'Rest day'}</span></span>
       <span>Total <b>${fmt(t.kcal)}</b> / ${fmt(r.target)} kcal</span>
       <span>P <b>${fmt(t.p)}</b> / ${r.protein} g</span>
       <span>C <b>${fmt(t.c)}</b> / ${r.carbs} g</span>
@@ -410,7 +434,12 @@
   }
 
   function renderWorkout(w) {
-    $('#splitName').innerHTML = `${esc(w.split)} · ${w.place === 'home' ? 'Home' : 'Gym'}${w.splitNote ? `<small>${esc(w.splitNote)}</small>` : ''}`;
+    const goalNote = {
+      lose: 'Set for fat loss: moderate reps, shorter rest, and a 10-minute finisher after each session.',
+      maintain: 'Set for recomp: a heavier first lift, then moderate reps.',
+      gain: 'Set for muscle gain: heavier reps, longer rest and extra sets on smaller muscles.',
+    }[w.goal];
+    $('#splitName').innerHTML = `${esc(w.split)} · ${w.place === 'home' ? 'Home' : 'Gym'}<small>${esc(goalNote)}${w.splitNote ? ` ${esc(w.splitNote)}` : ''}</small>`;
     $('#weekStrip').innerHTML = w.sessions.map((s) =>
       `<li class="${s.rest ? 'rest' : 'train'}"><b>${s.day.slice(0, 3)}</b>${s.rest ? 'Rest' : esc(s.name.split(' · ')[0])}</li>`).join('');
     $('#sessions').innerHTML = w.sessions.filter((s) => !s.rest).map((s) => `
@@ -422,6 +451,7 @@
             <tbody>${s.exercises.map((e) => `<tr><td>${esc(e.name)}</td><td>${e.sets}</td><td>${e.reps}</td><td>${e.rest}</td></tr>`).join('')}</tbody>
           </table>
         </div>
+        ${s.finisher ? `<p class="finisher">${esc(s.finisher)}</p>` : ''}
       </article>`).join('');
     $('#workoutNotes').innerHTML = w.notes.map((n) => `<div><dt>${esc(n.label)}</dt><dd>${esc(n.text)}</dd></div>`).join('');
   }
