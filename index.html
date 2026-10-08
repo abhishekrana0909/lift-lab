@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=20261008c">
+  <link rel="stylesheet" href="css/style.css?v=20261008e">
 </head>
 <body>
 
@@ -42,13 +42,12 @@
 
   <!-- HERO -->
   <section class="hero" id="top">
+    <div class="hero-bg" aria-hidden="true"></div>
     <div class="hero-photo" role="img" aria-label="A bodybuilder posing in a dark studio"></div>
     <div class="hero-inner wrap">
       <p class="eyebrow">Online coaching · Diet + training</p>
-      <h1 class="hero-word" aria-label="Lift Lab">
-        <span aria-hidden="true">LIFT</span>
-        <span aria-hidden="true">LAB</span>
-      </h1>
+      <img class="hero-logo" src="assets/logo-emblem.webp" alt="Lift Lab emblem: a flexed arm lifting a barbell inside a hexagon" width="440" height="348">
+      <h1 class="hero-word" aria-label="Lift Lab"><span aria-hidden="true">LIFT LAB</span></h1>
       <p class="hero-by">by <b>DWON</b></p>
       <p class="hero-lede">Real formulas. Indian food. A plan built on your own numbers.</p>
       <div class="hero-cta">
@@ -174,9 +173,13 @@
                 <select id="diet" name="diet">
                   <option value="veg">Vegetarian</option>
                   <option value="egg">Eggetarian</option>
-                  <option value="nonveg">Non-veg</option>
+                  <option value="nonveg">Non-veg (chicken &amp; eggs)</option>
                   <option value="vegan">Vegan</option>
                 </select>
+                <label class="check check-sub" for="fish" id="fishRow" hidden>
+                  <input type="checkbox" id="fish" name="fish">
+                  <span>I also eat fish</span>
+                </label>
               </div>
               <div class="field">
                 <label for="level">Training experience</label>
@@ -209,6 +212,11 @@
                   <input type="radio" id="days-6" name="days" value="6"><label for="days-6">6</label>
                 </div>
               </div>
+            </div>
+            <div class="field">
+              <label for="style">Workout split</label>
+              <select id="style" name="style"></select>
+              <ol class="week-preview" id="weekPreview" aria-label="Your training week"></ol>
             </div>
           </fieldset>
 
@@ -349,7 +357,7 @@
           <ul class="price-list">
             <li>7-day Indian diet plan portioned to your exact calories and macros</li>
             <li>Veg, eggetarian, non-veg or vegan</li>
-            <li>Workout plan for the gym or home, 3 to 6 days a week</li>
+            <li>Workout plan for the gym or home, 3 to 6 days a week, in the split you like: PPL, upper / lower, full body, 2 muscles a day or bro split</li>
             <li>Sets, reps, rest times and a clear rule for when to add weight</li>
             <li>Update your weight any time during the month and your plan updates with it</li>
           </ul>
@@ -483,8 +491,8 @@
   </div>
 </footer>
 
-<script src="js/config.js?v=20261008c"></script>
-<script src="js/engine.js?v=20261008c"></script>
-<script src="js/app.js?v=20261008c"></script>
+<script src="js/config.js?v=20261008e"></script>
+<script src="js/engine.js?v=20261008e"></script>
+<script src="js/app.js?v=20261008e"></script>
 </body>
 </html>

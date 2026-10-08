@@ -12,7 +12,8 @@
 
   const EXAMPLE = {
     name: '', sex: 'male', age: 25, weight: 78, hunit: 'cm', heightCm: 175, heightFt: '', heightIn: '',
-    activity: 'moderate', goal: 'lose', diet: 'veg', level: 'beginner', whey: false, place: 'gym', days: '4',
+    activity: 'moderate', goal: 'lose', diet: 'veg', level: 'beginner', whey: false, fish: false, place: 'gym', days: '4',
+    style: 'auto',
   };
 
   const storage = {
@@ -62,6 +63,42 @@
     }
   });
 
+  /* ---------- Hero: letters as windows onto the photo ---------- */
+
+  // The faded background and the photo inside LIFT LAB are the same image, both sized and placed
+  // against the screen (not the element). On scroll the letters move over a still photo.
+  const heroEl = $('.hero');
+  const heroBg = $('.hero-bg');
+  const heroWord = $('.hero-word span');
+  const HERO_RATIO = 2401 / 3600; // width / height of the rack photo
+  let heroQueued = false;
+
+  function paintHero() {
+    heroQueued = false;
+    const heroTop = heroEl.getBoundingClientRect().top;
+    if (heroTop < -heroEl.offsetHeight) return; // scrolled past the hero
+    const vw = document.documentElement.clientWidth;
+    const vh = window.innerHeight;
+    // Same maths as background-size: cover on a screen-sized box.
+    let w = vw;
+    let h = vw / HERO_RATIO;
+    if (h < vh) { h = vh; w = vh * HERO_RATIO; }
+    const x = (vw - w) / 2;
+    const y = (vh - h) / 2;
+    heroBg.style.height = `${vh}px`;
+    heroBg.style.transform = `translate3d(0, ${-heroTop}px, 0)`;
+    const r = heroWord.getBoundingClientRect();
+    heroWord.style.backgroundSize = `${w}px ${h}px, 100% 100%`;
+    heroWord.style.backgroundPosition = `${x - r.left}px ${y - r.top}px, 0 0`;
+  }
+  const queueHero = () => {
+    if (!heroQueued) { heroQueued = true; requestAnimationFrame(paintHero); }
+  };
+  window.addEventListener('scroll', queueHero, { passive: true });
+  window.addEventListener('resize', queueHero);
+  if (document.fonts) document.fonts.ready.then(queueHero); // the text box changes size once Archivo loads
+  paintHero();
+
   /* ---------- Form ---------- */
 
   const form = $('#labForm');
@@ -84,6 +121,25 @@
   activitySel.addEventListener('change', syncActivityHint);
   $('#level').addEventListener('change', syncActivityHint);
 
+  const styleSel = $('#style');
+  for (const [key, s] of Object.entries(L.SPLIT_STYLES)) {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = s.label;
+    styleSel.appendChild(opt);
+  }
+
+  // Fish only makes sense for non-veg; the week strip shows what the chosen split looks like.
+  function syncPlanChoices() {
+    $('#fishRow').hidden = $('#diet').value !== 'nonveg';
+    const days = Number(getRadio('days')) || 4;
+    $('#weekPreview').innerHTML = L.weekPreview(days, styleSel.value).map((d) =>
+      `<li class="${d.session ? 'train' : ''}"><b>${d.day.slice(0, 3)}</b>${d.session ? esc(d.session) : 'Rest'}</li>`).join('');
+  }
+  form.addEventListener('change', (e) => {
+    if (['diet', 'days', 'style'].includes(e.target.name)) syncPlanChoices();
+  });
+
   function setRadio(name, value) {
     const el = form.querySelector(`input[name="${name}"][value="${value}"]`);
     if (el) el.checked = true;
@@ -104,10 +160,13 @@
     $('#diet').value = v.diet;
     $('#level').value = v.level;
     $('#whey').checked = !!v.whey;
+    $('#fish').checked = !!v.fish;
     setRadio('place', v.place);
     setRadio('days', String(v.days));
+    styleSel.value = L.SPLIT_STYLES[v.style] ? v.style : 'auto';
     syncHeightUnit();
     syncActivityHint();
+    syncPlanChoices();
   }
 
   function readForm() {
@@ -125,8 +184,10 @@
       diet: $('#diet').value,
       level: $('#level').value,
       whey: $('#whey').checked,
+      fish: $('#fish').checked,
       place: getRadio('place'),
       days: getRadio('days'),
+      style: styleSel.value,
     };
   }
 
@@ -266,7 +327,8 @@
       `Height: ${fmt(input.height, input.height % 1 ? 1 : 0)} cm · Weight: ${input.weight} kg`,
       `Activity: ${L.ACTIVITY[input.activity].label}`,
       `Goal: ${L.GOALS[input.goal].label}`,
-      `Food: ${$('#diet').selectedOptions[0].textContent} · Trains at ${values.place} ${values.days} days/week`,
+      `Food: ${$('#diet').selectedOptions[0].textContent}${values.diet === 'nonveg' && values.fish ? ' + fish' : ''}`,
+      `Training: ${values.place}, ${values.days} days/week, ${L.SPLIT_STYLES[values.style].label}`,
       ``,
       `BMI: ${r.bmi.toFixed(1)} (${r.category.label})`,
       `Maintenance: ${fmt(r.tdee)} kcal`,
@@ -343,9 +405,11 @@
       name: values.name,
       diet: values.diet,
       whey: values.whey,
+      fish: values.fish,
       level: values.level,
       place: values.place,
       days: Number(values.days),
+      style: values.style,
     };
     dietDays = L.dietPlan(report, prefs);
     renderPlanFor(values, input, report);
@@ -359,7 +423,7 @@
 
   // Who this plan was built for, so a new person can see at a glance that the plan is theirs.
   function renderPlanFor(values, input, r) {
-    const food = $('#diet').selectedOptions[0].textContent;
+    const food = $('#diet').selectedOptions[0].textContent + (values.diet === 'nonveg' && values.fish ? ' + fish' : '');
     const level = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' }[values.level];
     const who = values.name ? `${values.name}'s plan` : 'Your plan';
     $('#planFor').innerHTML = `
@@ -369,7 +433,7 @@
       <span>${esc(L.GOALS[input.goal].label)}</span>
       <span>${fmt(r.target)} kcal · ${r.protein} g protein</span>
       <span>${esc(food)}</span>
-      <span>${level} · ${values.place === 'home' ? 'Home' : 'Gym'} ${values.days} days</span>`;
+      <span>${level} · ${values.place === 'home' ? 'Home' : 'Gym'} ${values.days} days · ${esc(L.SPLIT_STYLES[values.style].label)}</span>`;
   }
 
   function renderDayTabs() {

@@ -249,7 +249,7 @@
         { diets: ['nonveg', 'egg', 'veg', 'vegan'], title: 'Soya chunk curry & roti', fit: 'lean',
           fixed: [['sabzi', 100], ['salad', 100]],
           P: ['soya', 20, 70], C: ['roti', 1, 5], F: ['oil', 1, 3] },
-        { diets: ['nonveg'], title: 'Fish curry, rice & sabzi', fit: 'lean',
+        { diets: ['nonveg'], needs: 'fish', title: 'Fish curry, rice & sabzi', fit: 'lean',
           fixed: [['sabzi', 150], ['salad', 100]],
           P: ['fish', 100, 250], C: ['rice', 100, 400], F: ['oil', 0, 3] },
         { diets: ['egg'], title: 'Egg curry & roti',
@@ -307,7 +307,7 @@
         { diets: ['nonveg'], title: 'Grilled chicken & sweet potato', fit: 'lean',
           fixed: [['sabzi', 150], ['salad', 100]],
           P: ['chicken', 75, 250], C: ['sweetPotato', 100, 450], F: ['oil', 0, 3] },
-        { diets: ['nonveg'], title: 'Fish tikka, roti & sabzi', fit: 'lean',
+        { diets: ['nonveg'], needs: 'fish', title: 'Fish tikka, roti & sabzi', fit: 'lean',
           fixed: [['sabzi', 150], ['salad', 100]],
           P: ['fish', 100, 250], C: ['roti', 1, 4], F: ['oil', 0, 2] },
         { diets: ['egg', 'veg', 'vegan'], title: 'Soya & veg stir-fry with roti', fit: 'lean',
@@ -551,12 +551,16 @@
 
   // A person's own order of meals for one slot. Lean meals get more turns for fat loss, dense meals for muscle gain.
   function weeklyOrder(slot, ctx, salt) {
-    const options = slot.templates.filter((t) => t.diets.includes(ctx.diet));
+    const options = slot.templates.filter((t) => t.diets.includes(ctx.diet) && (!t.needs || ctx[t.needs]));
     const list = [];
     for (const t of options) {
       let weight = 2;
       if (t.fit === 'lean') weight += { lose: 2, gain: -1 }[ctx.goal] || 0;
       if (t.fit === 'dense') weight += { gain: 2, lose: -1 }[ctx.goal] || 0;
+      // Non-veg and egg eaters picked that option to eat chicken / eggs, so those meals come up more.
+      const mains = mainFoods(t, ctx);
+      if (ctx.diet === 'nonveg' && (mains.includes('chicken') || mains.includes('fish'))) weight += 3;
+      if (ctx.diet === 'egg' && mains.includes('egg')) weight += 2;
       for (let k = 0; k < Math.max(1, weight); k++) list.push(t);
     }
     const rand = seededRandom(ctx.seed ^ salt);
@@ -590,6 +594,7 @@
       whey: !!prefs.whey,
       vegan: prefs.diet === 'vegan',
       eggs: prefs.diet === 'egg' || prefs.diet === 'nonveg',
+      fish: prefs.diet === 'nonveg' && !!prefs.fish,
       goal: report.input.goal,
       seed: personSeed(report.input, prefs.name),
       sf: Math.min(1.9, Math.max(0.55, report.target / 2200)),
@@ -598,7 +603,7 @@
     const shares = SLOT_SHARES[count];
     const slots = MEALS.filter((s) => shares[s.key]);
     const orders = slots.map((s, i) => weeklyOrder(s, ctx, Math.imul(i + 1, 0x9e3779b1)));
-    const week = (SPLITS[prefs.days] || SPLITS[4]).week;
+    const week = splitFor(prefs.days, prefs.style).week;
     const yesterday = {};
     const days = [];
     for (let d = 0; d < 7; d++) {
@@ -656,6 +661,11 @@
       hammer:  [['Hammer curl', 'Rope cable curl'], ['Hammer curl', 'Rope cable curl'], ['Cable hammer curl', 'Hammer curl']],
       triceps: [['Rope pushdown', 'Bar pushdown'], ['Rope pushdown', 'Overhead cable extension', 'EZ-bar skull crusher'], ['Overhead cable extension', 'EZ-bar skull crusher', 'Close-grip bench press']],
       core:    [['Plank', 'Dead bug'], ['Cable crunch', 'Hanging knee raise', 'Plank'], ['Hanging leg raise', 'Ab wheel rollout', 'Cable crunch']],
+      chestDip:   [['Machine dip', 'Decline machine press'], ['Assisted or bodyweight dips', 'Decline dumbbell press'], ['Weighted dips', 'Decline barbell press']],
+      pullover:   [['Straight-arm pulldown'], ['Straight-arm pulldown', 'Dumbbell pullover'], ['Dumbbell pullover', 'Straight-arm pulldown']],
+      shrug:      [['Dumbbell shrug'], ['Dumbbell shrug', 'Barbell shrug'], ['Barbell shrug', 'Trap-bar shrug']],
+      frontRaise: [['Dumbbell front raise'], ['Cable front raise', 'Plate front raise'], ['Cable front raise', 'Plate front raise']],
+      uprightRow: [['Cable upright row'], ['Cable upright row', 'Dumbbell upright row'], ['Wide-grip cable upright row', 'Dumbbell upright row']],
     },
     home: {
       squat:   [['Bodyweight squat', 'Box squat to a chair'], ['Bulgarian split squat', 'Goblet squat (backpack)'], ['Bulgarian split squat (backpack)', 'Pistol squat to a chair']],
@@ -677,6 +687,11 @@
       hammer:  [['Towel isometric curl'], ['Backpack hammer curl'], ['Band hammer curl']],
       triceps: [['Chair dip', 'Close-grip incline push-up'], ['Diamond push-up', 'Chair dip'], ['Bodyweight triceps extension', 'Diamond push-up']],
       core:    [['Plank', 'Dead bug'], ['Dead bug', 'Side plank'], ['Hollow-body hold', 'Lying leg raise']],
+      chestDip:   [['Close-grip incline push-up'], ['Chair dip', 'Decline push-up (feet on bed)'], ['Deep chair dip', 'Decline push-up (feet on bed)']],
+      pullover:   [['Towel pullover on the floor'], ['Backpack pullover on the floor'], ['Backpack pullover on a bench']],
+      shrug:      [['Backpack shrug'], ['Backpack shrug'], ['Single-arm backpack shrug']],
+      frontRaise: [['Water-bottle front raise'], ['Backpack front raise', 'Band front raise'], ['Band front raise', 'Backpack front raise']],
+      uprightRow: [['Band upright row'], ['Band upright row', 'Backpack upright row'], ['Band upright row', 'Backpack upright row']],
     },
   };
 
@@ -700,6 +715,9 @@
     'Nordic curl (feet under the sofa)': 'Sliding leg curl (towel on floor)',
     'Sissy squat (hold a door frame)': 'Wall sit',
     'Chair dip': 'Close-grip incline push-up',
+    'Deep chair dip': 'Close-grip incline push-up',
+    'Weighted dips': 'Machine dip',
+    'Assisted or bodyweight dips': 'Machine dip',
     'Hollow-body hold': 'Dead bug',
   };
 
@@ -717,8 +735,9 @@
     homeGentle: '10-min finisher: brisk walk, or march in place with high knees.',
   };
 
-  const COMPOUND = new Set(['squat', 'hinge', 'lunge', 'legPress', 'hPush', 'incPush', 'vPush', 'vPull', 'hRow']);
+  const COMPOUND = new Set(['squat', 'hinge', 'lunge', 'legPress', 'hPush', 'incPush', 'vPush', 'vPull', 'hRow', 'chestDip']);
 
+  // A pattern listed twice in one session gets the next equivalent exercise the second time.
   const SESSIONS = {
     fullA: { name: 'Full body A', patterns: ['squat', 'hPush', 'hRow', 'hinge', 'lateral', 'core', 'biceps'] },
     fullB: { name: 'Full body B', patterns: ['hinge', 'vPush', 'vPull', 'lunge', 'incPush', 'triceps', 'core'] },
@@ -727,15 +746,89 @@
     push:  { name: 'Push · chest, shoulders, triceps', patterns: ['hPush', 'incPush', 'vPush', 'lateral', 'fly', 'triceps', 'triceps'] },
     pull:  { name: 'Pull · back, biceps', patterns: ['vPull', 'hRow', 'rear', 'biceps', 'hammer', 'core', 'hRow'] },
     legs:  { name: 'Legs', patterns: ['squat', 'hinge', 'legPress', 'quadIso', 'hamIso', 'calf', 'core'] },
+    // Two muscles a day
+    chestTri:      { name: 'Chest + triceps', patterns: ['hPush', 'incPush', 'triceps', 'fly', 'triceps', 'chestDip', 'core'] },
+    backBi:        { name: 'Back + biceps', patterns: ['vPull', 'hRow', 'biceps', 'pullover', 'hammer', 'hRow', 'rear'] },
+    shouldersAbs:  { name: 'Shoulders + abs', patterns: ['vPush', 'lateral', 'rear', 'core', 'frontRaise', 'core', 'shrug'] },
+    legsShoulders: { name: 'Legs + shoulders', patterns: ['squat', 'hinge', 'vPush', 'lateral', 'legPress', 'hamIso', 'calf'] },
+    arms:          { name: 'Arms', patterns: ['biceps', 'triceps', 'hammer', 'triceps', 'biceps', 'core', 'hammer'] },
+    // One muscle a day (bro split)
+    chest:         { name: 'Chest', patterns: ['hPush', 'incPush', 'fly', 'chestDip', 'hPush', 'incPush', 'fly'] },
+    back:          { name: 'Back', patterns: ['vPull', 'hRow', 'pullover', 'vPull', 'hRow', 'rear', 'shrug'] },
+    shoulders:     { name: 'Shoulders', patterns: ['vPush', 'lateral', 'rear', 'frontRaise', 'uprightRow', 'lateral', 'shrug'] },
+    shouldersArms: { name: 'Shoulders + arms', patterns: ['vPush', 'lateral', 'biceps', 'triceps', 'rear', 'hammer', 'triceps'] },
   };
 
-  const SPLITS = {
-    3: { name: 'Full body, 3 days', week: ['fullA', null, 'fullB', null, 'fullA', null, null],
-         note: 'Next week, swap the order: B, A, B.' },
-    4: { name: 'Upper / lower, 4 days', week: ['upper', 'lower', null, 'upper', 'lower', null, null] },
-    5: { name: 'Upper / lower + push / pull / legs, 5 days', week: ['upper', 'lower', null, 'push', 'pull', 'legs', null] },
-    6: { name: 'Push / pull / legs, 6 days', week: ['push', 'pull', 'legs', 'push', 'pull', 'legs', null] },
+  // Week layouts (Monday first) for each workout style and number of training days.
+  const SPLIT_STYLES = {
+    auto: {
+      label: 'Recommended for my days',
+      weeks: {
+        3: { name: 'Full body, 3 days', week: ['fullA', null, 'fullB', null, 'fullA', null, null], note: 'Next week, swap the order: B, A, B.' },
+        4: { name: 'Upper / lower, 4 days', week: ['upper', 'lower', null, 'upper', 'lower', null, null] },
+        5: { name: 'Upper / lower + push / pull / legs, 5 days', week: ['upper', 'lower', null, 'push', 'pull', 'legs', null] },
+        6: { name: 'Push / pull / legs, 6 days', week: ['push', 'pull', 'legs', 'push', 'pull', 'legs', null] },
+      },
+    },
+    ppl: {
+      label: 'Push / Pull / Legs',
+      weeks: {
+        3: { name: 'Push / pull / legs, 3 days', week: ['push', null, 'pull', null, 'legs', null, null] },
+        4: { name: 'Push / pull / legs + upper, 4 days', week: ['push', 'pull', null, 'legs', 'upper', null, null] },
+        5: { name: 'Push / pull / legs + upper / lower, 5 days', week: ['push', 'pull', 'legs', null, 'upper', 'lower', null] },
+        6: { name: 'Push / pull / legs, 6 days', week: ['push', 'pull', 'legs', 'push', 'pull', 'legs', null] },
+      },
+    },
+    upperlower: {
+      label: 'Upper / Lower',
+      weeks: {
+        3: { name: 'Upper / lower, 3 days', week: ['upper', null, 'lower', null, 'upper', null, null], note: 'Next week, swap the order: lower, upper, lower.' },
+        4: { name: 'Upper / lower, 4 days', week: ['upper', 'lower', null, 'upper', 'lower', null, null] },
+        5: { name: 'Upper / lower, 5 days', week: ['upper', 'lower', null, 'upper', 'lower', 'upper', null], note: 'Next week, start with lower.' },
+        6: { name: 'Upper / lower, 6 days', week: ['upper', 'lower', 'upper', 'lower', 'upper', 'lower', null] },
+      },
+    },
+    fullbody: {
+      label: 'Full body',
+      weeks: {
+        3: { name: 'Full body, 3 days', week: ['fullA', null, 'fullB', null, 'fullA', null, null], note: 'Next week, swap the order: B, A, B.' },
+        4: { name: 'Full body, 4 days', week: ['fullA', 'fullB', null, 'fullA', 'fullB', null, null] },
+        5: { name: 'Full body, 5 days', week: ['fullA', 'fullB', null, 'fullA', 'fullB', 'fullA', null], note: 'Keep the last set of each exercise 2 reps short of failure, so you recover between days.' },
+        6: { name: 'Full body, 6 days', week: ['fullA', 'fullB', 'fullA', 'fullB', 'fullA', 'fullB', null], note: 'Keep the last set of each exercise 2 reps short of failure, so you recover between days.' },
+      },
+    },
+    two: {
+      label: '2 muscles a day',
+      weeks: {
+        3: { name: '2 muscles a day, 3 days', week: ['chestTri', null, 'backBi', null, 'legsShoulders', null, null] },
+        4: { name: '2 muscles a day, 4 days', week: ['chestTri', 'backBi', null, 'legs', 'shouldersAbs', null, null] },
+        5: { name: '2 muscles a day, 5 days', week: ['chestTri', 'backBi', 'legs', null, 'shouldersAbs', 'arms', null] },
+        6: { name: '2 muscles a day, 6 days', week: ['chestTri', 'backBi', 'legs', 'shouldersAbs', 'arms', 'legs', null] },
+      },
+    },
+    bro: {
+      label: 'Bro split (1 muscle a day)',
+      weeks: {
+        3: { name: 'Bro split, 3 days', week: ['chest', null, 'back', null, 'legs', null, null], note: 'Shoulders and arms get worked on chest and back days. With 5 days you get the full bro split.' },
+        4: { name: 'Bro split, 4 days', week: ['chest', 'back', null, 'legs', 'shouldersArms', null, null], note: 'Shoulders and arms share one day.' },
+        5: { name: 'Bro split, 5 days', week: ['chest', 'back', 'shoulders', 'arms', 'legs', null, null] },
+        6: { name: 'Bro split, 6 days', week: ['chest', 'back', 'legs', 'shoulders', 'arms', 'legs', null] },
+      },
+    },
   };
+
+  function splitFor(days, style) {
+    const s = SPLIT_STYLES[style] || SPLIT_STYLES.auto;
+    return s.weeks[days] || s.weeks[4];
+  }
+
+  // Short labels for each day of the week, used for the preview under the split picker.
+  function weekPreview(days, style) {
+    return splitFor(days, style).week.map((key, i) => ({
+      day: DAY_NAMES[i],
+      session: key ? SESSIONS[key].name.split(' · ')[0] : null,
+    }));
+  }
 
   const LEVEL_INDEX = { beginner: 0, intermediate: 1, advanced: 2 };
 
@@ -744,7 +837,7 @@
     const goal = input.goal;
     const lvl = LEVEL_INDEX[prefs.level] ?? 0;
     const place = prefs.place === 'home' ? 'home' : 'gym';
-    const split = SPLITS[prefs.days] || SPLITS[4];
+    const split = splitFor(prefs.days, prefs.style);
     const count = [5, 6, 7][lvl];
     const home = place === 'home';
     const gentle = input.age >= 45 || report.bmi >= 30;
@@ -937,7 +1030,7 @@
   global.LiftLab = {
     ACTIVITY, GOALS, LIMITS, FOODS, MEALS, DAY_NAMES,
     bmi, bmiCategory, bmiCategoryWHO, bmr, validate, analyse,
-    dietPlan, workoutPlan,
+    dietPlan, workoutPlan, SPLIT_STYLES, weekPreview,
     hash, makeCode, checkCode, dayNumber, dateFromDay,
     fmtAmount, fmtFraction, fmtDate,
   };
