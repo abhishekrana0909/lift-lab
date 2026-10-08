@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Coach Desk · Lift Lab</title>
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .desk { padding-block: calc(var(--nav-h) + 32px) 80px; }
+    .desk-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: start; margin-top: 40px; }
+    .panel { border: 1px solid var(--line); border-top: 3px solid var(--orange); background: var(--iron); padding: clamp(20px, 3vw, 32px); display: grid; gap: 16px; min-width: 0; }
+    .panel h2 { margin: 0; font-family: var(--f-display); font-size: var(--fs-xl); font-weight: 800; font-stretch: 80%; text-transform: uppercase; }
+    .panel p { margin: 0; color: var(--steel); font-size: var(--fs-sm); }
+    .code-out { display: grid; gap: 10px; padding: 20px; background: var(--black); border: 1px dashed var(--orange); }
+    .code-big { font-family: var(--f-mono); font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; letter-spacing: .08em; color: var(--orange); user-select: all; overflow-wrap: anywhere; }
+    .code-exp { font-family: var(--f-mono); font-size: var(--fs-sm); color: var(--chrome); }
+    .msg { width: 100%; min-height: 150px; padding: 12px 14px; border: 1px solid var(--line); background: var(--black); color: var(--chrome); font-family: var(--f-body); font-size: var(--fs-sm); line-height: 1.5; resize: vertical; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; }
+    .row .btn { flex: 1 1 200px; }
+    .ok { color: var(--plate-green) !important; }
+    .bad { color: #ff7a6b !important; }
+    .gate { max-width: 440px; margin: 40px auto 0; }
+    .pin-line { font-family: var(--f-mono); font-size: var(--fs-sm); background: var(--black); border: 1px solid var(--line); padding: 12px; overflow-wrap: anywhere; user-select: all; color: var(--chrome); }
+    @media (max-width: 900px) { .desk-grid { grid-template-columns: minmax(0, 1fr); } }
+  </style>
+</head>
+<body>
+
+<header class="nav is-solid">
+  <div class="nav-inner">
+    <a class="brand" href="index.html">
+      <img class="brand-mark" src="assets/logo-mark.webp" alt="" width="50" height="40">
+      <span class="brand-word">LIFT LAB</span>
+      <span class="brand-by">Coach desk</span>
+    </a>
+    <a class="btn btn-small" href="index.html">Back to site</a>
+  </div>
+</header>
+
+<main class="desk wrap">
+  <p class="eyebrow">Only for Dwon</p>
+  <h1 class="h-sec">Coach <em>desk</em></h1>
+
+  <!-- PIN gate -->
+  <form class="panel gate" id="gate" novalidate>
+    <h2>Enter your PIN</h2>
+    <div class="field">
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12">
+      <p class="err" id="pinErr" role="alert"></p>
+    </div>
+    <button class="btn btn-primary" type="submit">Open desk</button>
+  </form>
+
+  <div class="desk-grid" id="desk" hidden>
+    <!-- Make a code -->
+    <form class="panel" id="makeForm" novalidate>
+      <h2>Make an unlock code</h2>
+      <p>Check the payment in your UPI app first. Then make the code and send it to the client.</p>
+      <div class="field-row">
+        <div class="field">
+          <label for="clientName">Client name <span class="opt">optional</span></label>
+          <input id="clientName" type="text" maxlength="40" placeholder="e.g. Rahul">
+        </div>
+        <div class="field">
+          <label for="clientPhone">Client WhatsApp <span class="opt">optional</span></label>
+          <input id="clientPhone" type="text" inputmode="tel" maxlength="16" placeholder="10-digit number">
+          <p class="err" id="phoneErr"></p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="startDate">Paid on</label>
+          <input id="startDate" type="date">
+        </div>
+        <div class="field">
+          <label for="validDays">Valid for <span class="unit">days</span></label>
+          <input id="validDays" type="number" inputmode="numeric" min="1" max="400" step="1">
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">Make code</button>
+
+      <div class="code-out" id="codeOut" hidden>
+        <span class="code-big" id="codeBig"></span>
+        <span class="code-exp" id="codeExp"></span>
+        <label class="sr-only" for="msg">Message to send</label>
+        <textarea class="msg" id="msg"></textarea>
+        <div class="row">
+          <button class="btn btn-small" type="button" id="copyMsg">Copy message</button>
+          <a class="btn btn-wa" id="sendWa" href="#" target="_blank" rel="noopener">Send on WhatsApp</a>
+        </div>
+      </div>
+    </form>
+
+    <div style="display:grid; gap:24px; min-width:0">
+      <!-- Check a code -->
+      <form class="panel" id="checkForm" novalidate>
+        <h2>Check a code</h2>
+        <div class="field">
+          <label for="checkCode">Code</label>
+          <input id="checkCode" type="text" autocomplete="off" spellcheck="false" placeholder="LL-XXX-XXXXX" maxlength="14" style="text-transform:uppercase">
+        </div>
+        <button class="btn btn-small" type="submit">Check</button>
+        <p id="checkOut" aria-live="polite"></p>
+      </form>
+
+      <!-- Change PIN -->
+      <form class="panel" id="pinForm" novalidate>
+        <h2>Change PIN</h2>
+        <p>Type a new PIN. Copy the line below into <code>js/config.js</code> in place of the old <code>coachPinHash</code> line, then save.</p>
+        <div class="field">
+          <label for="newPin">New PIN</label>
+          <input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" minlength="4" maxlength="12">
+        </div>
+        <button class="btn btn-small" type="submit">Make PIN line</button>
+        <p class="pin-line" id="pinLine" hidden></p>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/coach.js"></script>
+</body>
+</html>

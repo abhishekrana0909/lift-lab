@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Lift Lab by Dwon</title>
+  <meta name="description" content="Lift Lab by Dwon: free BMI, calorie and macro calculator, plus a personal Indian diet plan and workout plan for ₹499 a month.">
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip" href="#lab">Skip to the calculator</a>
+
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="Lift Lab by Dwon, home">
+      <img class="brand-mark" src="assets/logo-mark.webp" alt="" width="50" height="40">
+      <span class="brand-word">LIFT LAB</span>
+      <span class="brand-by">by DWON</span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks">
+      <span class="sr-only">Menu</span><span class="bars" aria-hidden="true"></span>
+    </button>
+    <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="#lab">The Lab</a>
+      <a href="#programs">Programs</a>
+      <a href="#plan">Your Plan</a>
+      <a href="#tips">Tips</a>
+      <a class="nav-cta" href="#join">Join · ₹<span data-price>499</span></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-photo" role="img" aria-label="A bodybuilder posing in a dark studio"></div>
+    <div class="hero-inner wrap">
+      <p class="eyebrow">Online coaching · Diet + training</p>
+      <h1 class="hero-word" aria-label="Lift Lab">
+        <span aria-hidden="true">LIFT</span>
+        <span aria-hidden="true">LAB</span>
+      </h1>
+      <p class="hero-by">by <b>DWON</b></p>
+      <p class="hero-lede">Real formulas. Indian food. A plan built on your own numbers.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#lab">Check my numbers · free</a>
+        <a class="btn btn-ghost" href="#join">Get my plan · ₹<span data-price>499</span>/month</a>
+      </div>
+    </div>
+    <p class="hero-side" aria-hidden="true"><b>BMI · Calories · Macros</b><span>Free for everyone</span></p>
+    <dl class="hero-spec wrap">
+      <div><dt>Calorie formula</dt><dd>Mifflin–St Jeor</dd></div>
+      <div><dt>BMI cut-offs</dt><dd>Asian · 23 / 25</dd></div>
+      <div><dt>Food</dt><dd>Veg · Egg · Non-veg · Vegan</dd></div>
+      <div><dt>Plan</dt><dd>₹<span data-price>499</span> / month</dd></div>
+    </dl>
+  </section>
+
+  <!-- PROGRAMS -->
+  <section class="programs section" id="programs">
+    <div class="wrap">
+      <h2 class="h-outline">What I offer</h2>
+      <div class="program-grid">
+        <article class="program">
+          <img src="https://images.unsplash.com/photo-1650537167988-5a295c5fdde6?auto=format&fit=crop&w=800&h=600&q=70" alt="A person running toward a light at night" width="800" height="600" loading="lazy">
+          <p class="program-tag">Goal · Lose fat</p>
+          <h3>Fat Loss</h3>
+          <p>A 20% calorie deficit you can live with, and enough protein to keep your muscle while the fat comes off. Roughly half a kilo a week.</p>
+        </article>
+        <article class="program">
+          <img src="https://images.unsplash.com/photo-1628884879718-60dd217d5c9b?auto=format&fit=crop&w=800&h=600&q=70" alt="A muscular man doing a dumbbell curl in a dark gym" width="800" height="600" loading="lazy">
+          <p class="program-tag">Goal · Build muscle</p>
+          <h3>Muscle Gain</h3>
+          <p>A 10% surplus, progressive overload every week and 1.8 g of protein per kg. Slow, clean weight gain instead of a dirty bulk.</p>
+        </article>
+        <article class="program">
+          <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?auto=format&fit=crop&w=800&h=600&q=70" alt="A shirtless man setting up a barbell deadlift in a dark gym" width="800" height="600" loading="lazy">
+          <p class="program-tag">Goal · Recomp</p>
+          <h3>Body Recomp</h3>
+          <p>Eat at maintenance, train hard, and lose fat while you build muscle. Works best for beginners and people coming back to the gym.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE LAB: CALCULATOR -->
+  <section class="lab section" id="lab">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">The Lab · Free</p>
+        <h2 class="h-sec">Test your <em>numbers</em></h2>
+        <p class="sec-lede">Fill in your details and get your BMI, daily calories, protein, carbs and fat. The numbers update as you type and stay saved on this phone, so you can come back any time.</p>
+      </header>
+
+      <div class="lab-grid">
+        <form class="lab-form" id="labForm" novalidate>
+          <fieldset>
+            <legend>You</legend>
+            <div class="field">
+              <label for="name">Name <span class="opt">optional</span></label>
+              <input id="name" name="name" type="text" autocomplete="given-name" maxlength="40" placeholder="Your name">
+            </div>
+            <div class="field">
+              <span class="label" id="sexLabel">Sex</span>
+              <div class="seg" role="radiogroup" aria-labelledby="sexLabel">
+                <input type="radio" id="sex-male" name="sex" value="male" checked><label for="sex-male">Male</label>
+                <input type="radio" id="sex-female" name="sex" value="female"><label for="sex-female">Female</label>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="age">Age <span class="unit">years</span></label>
+                <input id="age" name="age" type="number" inputmode="numeric" min="18" max="80" step="1" required>
+                <p class="err" id="age-err"></p>
+              </div>
+              <div class="field">
+                <label for="weight">Weight <span class="unit">kg</span></label>
+                <input id="weight" name="weight" type="number" inputmode="decimal" min="35" max="200" step="0.1" required>
+                <p class="err" id="weight-err"></p>
+              </div>
+            </div>
+            <div class="field">
+              <div class="label-row">
+                <span class="label" id="heightLabel">Height</span>
+                <div class="seg seg-sm" role="radiogroup" aria-label="Height unit">
+                  <input type="radio" id="hunit-cm" name="hunit" value="cm" checked><label for="hunit-cm">cm</label>
+                  <input type="radio" id="hunit-ft" name="hunit" value="ft"><label for="hunit-ft">ft / in</label>
+                </div>
+              </div>
+              <div class="height-cm" id="heightCmBox">
+                <input id="heightCm" name="heightCm" type="number" inputmode="decimal" min="130" max="220" step="0.5" aria-labelledby="heightLabel" required>
+              </div>
+              <div class="height-ft" id="heightFtBox" hidden>
+                <label class="sr-only" for="heightFt">Feet</label>
+                <input id="heightFt" name="heightFt" type="number" inputmode="numeric" min="4" max="7" step="1" placeholder="ft">
+                <label class="sr-only" for="heightIn">Inches</label>
+                <input id="heightIn" name="heightIn" type="number" inputmode="numeric" min="0" max="11" step="1" placeholder="in">
+              </div>
+              <p class="err" id="height-err"></p>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Your day</legend>
+            <div class="field">
+              <label for="activity">How active are you?</label>
+              <select id="activity" name="activity"></select>
+              <p class="hint" id="activityHint"></p>
+            </div>
+            <div class="field">
+              <span class="label" id="goalLabel">Goal</span>
+              <div class="seg seg-3" role="radiogroup" aria-labelledby="goalLabel">
+                <input type="radio" id="goal-lose" name="goal" value="lose" checked><label for="goal-lose">Lose fat</label>
+                <input type="radio" id="goal-maintain" name="goal" value="maintain"><label for="goal-maintain">Recomp</label>
+                <input type="radio" id="goal-gain" name="goal" value="gain"><label for="goal-gain">Build muscle</label>
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Food &amp; training <span class="opt">for your plan</span></legend>
+            <div class="field-row">
+              <div class="field">
+                <label for="diet">Food</label>
+                <select id="diet" name="diet">
+                  <option value="veg">Vegetarian</option>
+                  <option value="egg">Eggetarian</option>
+                  <option value="nonveg">Non-veg</option>
+                  <option value="vegan">Vegan</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="level">Training experience</label>
+                <select id="level" name="level">
+                  <option value="beginner">Beginner</option>
+                  <option value="intermediate">Intermediate</option>
+                  <option value="advanced">Advanced</option>
+                </select>
+                <p class="hint" id="levelHint"></p>
+              </div>
+            </div>
+            <label class="check" for="whey">
+              <input type="checkbox" id="whey" name="whey">
+              <span>I take protein powder (whey or plant)</span>
+            </label>
+            <div class="field-row">
+              <div class="field">
+                <span class="label" id="placeLabel">Train at</span>
+                <div class="seg" role="radiogroup" aria-labelledby="placeLabel">
+                  <input type="radio" id="place-gym" name="place" value="gym" checked><label for="place-gym">Gym</label>
+                  <input type="radio" id="place-home" name="place" value="home"><label for="place-home">Home</label>
+                </div>
+              </div>
+              <div class="field">
+                <span class="label" id="daysLabel">Days a week</span>
+                <div class="seg seg-4" role="radiogroup" aria-labelledby="daysLabel">
+                  <input type="radio" id="days-3" name="days" value="3"><label for="days-3">3</label>
+                  <input type="radio" id="days-4" name="days" value="4" checked><label for="days-4">4</label>
+                  <input type="radio" id="days-5" name="days" value="5"><label for="days-5">5</label>
+                  <input type="radio" id="days-6" name="days" value="6"><label for="days-6">6</label>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <button class="btn btn-primary btn-block" type="submit">Run my numbers</button>
+          <p class="fine">Estimates for healthy adults aged 18–80. If you are pregnant, breastfeeding or have a medical condition, check with your doctor first.</p>
+        </form>
+
+        <article class="report" id="report" aria-live="polite" aria-labelledby="reportTitle">
+          <header class="report-head">
+            <div>
+              <p class="report-kicker">Lift Lab · Body report</p>
+              <h3 class="report-title" id="reportTitle">Your numbers</h3>
+            </div>
+            <span class="report-badge" id="exampleBadge">Example · enter yours</span>
+          </header>
+          <dl class="report-meta" id="reportMeta"></dl>
+
+          <div class="bmi-block">
+            <div class="bmi-figure">
+              <span class="bmi-num" id="bmiNum">–</span>
+              <span class="bmi-unit">kg/m² · BMI</span>
+            </div>
+            <div class="bmi-cat">
+              <span class="flag" id="bmiFlag">–</span>
+              <p id="bmiWho"></p>
+            </div>
+          </div>
+          <div class="gauge" aria-hidden="true">
+            <div class="gauge-bar">
+              <span class="seg-under"></span><span class="seg-normal"></span><span class="seg-over"></span><span class="seg-obese"></span>
+              <i class="gauge-pin" id="gaugePin"></i>
+            </div>
+            <div class="gauge-ticks"><span style="left:17.5%">18.5</span><span style="left:40%">23</span><span style="left:50%">25</span><span style="left:75%">30</span></div>
+          </div>
+
+          <div class="table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr><th scope="col">Test</th><th scope="col">Result</th><th scope="col">Unit</th><th scope="col">Reference</th></tr>
+              </thead>
+              <tbody id="reportRows"></tbody>
+            </table>
+          </div>
+
+          <div class="macro">
+            <div class="macro-bar" id="macroBar" aria-hidden="true"><span class="m-p"></span><span class="m-c"></span><span class="m-f"></span></div>
+            <ul class="macro-legend" id="macroLegend"></ul>
+          </div>
+
+          <p class="report-note" id="reportNote"></p>
+
+          <div class="report-actions">
+            <a class="btn btn-wa" id="waReport" href="#" target="_blank" rel="noopener">Send this report to Dwon on WhatsApp</a>
+            <a class="btn btn-ghost" href="#plan">See my diet &amp; workout plan</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- YOUR PLAN -->
+  <section class="plan section" id="plan">
+    <div class="wrap">
+      <header class="sec-head sec-head-row">
+        <div>
+          <p class="eyebrow">Built from your report</p>
+          <h2 class="h-sec">Your <em>plan</em></h2>
+        </div>
+        <p class="plan-status" id="planStatus"></p>
+      </header>
+
+      <div class="plan-locked" id="planLocked">
+        <div class="ghost-plan" aria-hidden="true">
+          <div class="ghost-tabs"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="ghost-cards"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="lock-card">
+          <p class="eyebrow">Locked</p>
+          <h3>Your 7-day diet plan and weekly workout plan are ready</h3>
+          <p>Every meal is portioned to your calories and macros, with Indian food you can cook at home. The workout plan is set for <b id="lockPlace">the gym</b>, <b id="lockDays">4 days</b> a week.</p>
+          <p class="lock-price"><b>₹<span data-price>499</span></b> / month</p>
+          <form class="unlock" id="unlockForm" novalidate>
+            <label for="unlockCode">Have a code from Dwon?</label>
+            <div class="unlock-row">
+              <input id="unlockCode" name="unlockCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LL-XXX-XXXXX" maxlength="14">
+              <button class="btn btn-primary" type="submit">Unlock</button>
+            </div>
+            <p class="err" id="unlockErr" role="alert"></p>
+          </form>
+          <a class="lock-link" href="#join">No code yet? Here's how to get one ↓</a>
+        </div>
+      </div>
+
+      <div class="plan-open" id="planOpen" hidden>
+        <div class="plan-switch" role="tablist" aria-label="Plan type">
+          <button role="tab" id="tab-diet" aria-controls="panel-diet" aria-selected="true">Diet plan</button>
+          <button role="tab" id="tab-workout" aria-controls="panel-workout" aria-selected="false" tabindex="-1">Workout plan</button>
+        </div>
+
+        <div role="tabpanel" id="panel-diet" aria-labelledby="tab-diet">
+          <div class="day-tabs" id="dayTabs" role="tablist" aria-label="Day of the week"></div>
+          <div class="day-total" id="dayTotal"></div>
+          <div class="meals" id="meals"></div>
+          <ul class="plan-notes">
+            <li>Weigh cooked food unless it says <em>dry</em>. 1 katori ≈ 150 g, 1 glass ≈ 250 ml.</li>
+            <li>Swap freely: 1 roti ≈ 75 g cooked rice. 100 g chicken ≈ 125 g fish ≈ 4 eggs ≈ 120 g paneer for protein.</li>
+            <li>Tea or coffee: up to 2 cups a day with 1 tsp sugar each fits inside these numbers.</li>
+          </ul>
+        </div>
+
+        <div role="tabpanel" id="panel-workout" aria-labelledby="tab-workout" hidden>
+          <p class="split-name" id="splitName"></p>
+          <ol class="week-strip" id="weekStrip"></ol>
+          <div class="sessions" id="sessions"></div>
+          <dl class="workout-notes" id="workoutNotes"></dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section class="join section" id="join">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">Join Lift Lab</p>
+        <h2 class="h-sec">One plan. <em>₹<span data-price>499</span></em> a month.</h2>
+      </header>
+
+      <div class="join-grid">
+        <article class="price-card">
+          <p class="price-name">Lift Lab Plan</p>
+          <p class="price"><b>₹<span data-price>499</span></b><span>/ month</span></p>
+          <ul class="price-list">
+            <li>7-day Indian diet plan portioned to your exact calories and macros</li>
+            <li>Veg, eggetarian, non-veg or vegan</li>
+            <li>Workout plan for the gym or home, 3 to 6 days a week</li>
+            <li>Sets, reps, rest times and a clear rule for when to add weight</li>
+            <li>Update your weight any time during the month and your plan updates with it</li>
+          </ul>
+          <p class="price-fine">Pay each month to keep your plan open. Your code shows the date it runs out.</p>
+          <a class="btn btn-wa btn-block" id="waPaid" href="#" target="_blank" rel="noopener">I've paid · send screenshot on WhatsApp</a>
+        </article>
+
+        <article class="qr-card">
+          <img class="qr-img" src="assets/upi-qr.png" alt="UPI QR code for paying Lift Lab" width="600" height="674">
+          <div class="qr-body">
+            <p class="qr-label">Scan with any UPI app</p>
+            <div class="upi-row">
+              <code id="upiId">ranaabhi368-1@okaxis</code>
+              <button class="btn btn-small" type="button" id="copyUpi">Copy</button>
+            </div>
+            <p class="qr-note">Your UPI app will show the name <b id="payeeName">Abhi Rana</b>. That's the Lift Lab account, so go ahead and pay.</p>
+          </div>
+        </article>
+      </div>
+
+      <ol class="steps">
+        <li class="step">
+          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1587996580981-bd03dde74843?auto=format&fit=crop&w=700&h=700&q=70" alt="Someone holding a meal-prep box of chicken and vegetables" width="700" height="700" loading="lazy"></figure>
+          <div class="step-text">
+            <span class="step-no">01</span>
+            <h3>Check your numbers</h3>
+            <p>Fill in the free calculator above. Your plan is built from this report.</p>
+          </div>
+        </li>
+        <li class="step">
+          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1644085159448-1659fd88a217?auto=format&fit=crop&w=700&h=700&q=70" alt="Chalked hands gripping a kettlebell" width="700" height="700" loading="lazy"></figure>
+          <div class="step-text">
+            <span class="step-no">02</span>
+            <h3>Pay ₹<span data-price>499</span> by UPI</h3>
+            <p>Scan the QR code or copy the UPI ID. Take a screenshot of the payment.</p>
+          </div>
+        </li>
+        <li class="step">
+          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1576913105965-1d0b6a19a482?auto=format&fit=crop&w=700&h=700&q=70" alt="A man standing in a dim room with smoke around him" width="700" height="700" loading="lazy"></figure>
+          <div class="step-text">
+            <span class="step-no">03</span>
+            <h3>Send it on WhatsApp</h3>
+            <p>Send the screenshot to <b class="wa-num">+91 98769 63879</b>. Dwon replies with your unlock code.</p>
+          </div>
+        </li>
+        <li class="step">
+          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1734630341082-0fec0e10126c?auto=format&fit=crop&w=700&h=700&q=70" alt="A row of dumbbells on a rack in a dark gym" width="700" height="700" loading="lazy"></figure>
+          <div class="step-text">
+            <span class="step-no">04</span>
+            <h3>Unlock your plan</h3>
+            <p>Enter the code in <a href="#plan">Your Plan</a>. It stays open on this phone until the date on your code.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- TIPS -->
+  <section class="tips section" id="tips">
+    <div class="wrap">
+      <header class="sec-head">
+        <p class="eyebrow">From the lab</p>
+        <h2 class="h-sec">Three things that <em>actually</em> matter</h2>
+      </header>
+      <div class="tip-grid">
+        <article class="tip">
+          <figure><img src="https://images.unsplash.com/photo-1668838289210-e7665d947145?auto=format&fit=crop&w=800&h=560&q=70" alt="Meal-prep boxes with grilled meat and asparagus" width="800" height="560" loading="lazy"><figcaption class="tip-tag">Nutrition</figcaption></figure>
+          <h3>Hit your protein first</h3>
+          <p>Build every meal around a protein: dal with paneer, eggs, chicken, soya or curd. Most Indian diets fall short here, and protein is what protects your muscle in a deficit.</p>
+        </article>
+        <article class="tip">
+          <figure><img src="https://images.unsplash.com/photo-1672344048213-76b6e77304bd?auto=format&fit=crop&w=800&h=560&q=70" alt="A dumbbell in black and white" width="800" height="560" loading="lazy"><figcaption class="tip-tag">Training</figcaption></figure>
+          <h3>Add a rep or add a kilo</h3>
+          <p>Write down every set. Next session, beat it by one rep or a little weight. That small push, week after week, is what builds muscle.</p>
+        </article>
+        <article class="tip">
+          <figure><img src="https://images.unsplash.com/photo-1639098372138-535d99f88b86?auto=format&fit=crop&w=800&h=560&q=70" alt="A man walking through a dark tunnel toward the light" width="800" height="560" loading="lazy"><figcaption class="tip-tag">Daily habit</figcaption></figure>
+          <h3>Steps beat extra cardio</h3>
+          <p>8,000–10,000 steps a day burns more over a week than most cardio sessions, and it doesn't make you hungry. Walk after meals and take the stairs.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" aria-labelledby="ctaTitle">
+    <div class="cta-inner wrap">
+      <h2 class="cta-title" id="ctaTitle">Stop guessing.<br>Start lifting.</h2>
+      <a class="btn btn-ghost-light" href="#lab">Run my numbers</a>
+    </div>
+  </section>
+
+  <!-- LETTER -->
+  <section class="letter" id="letter" aria-labelledby="letterTitle">
+    <div class="letter-inner wrap">
+      <img class="letter-logo" src="assets/logo.webp" alt="Lift Lab, Gym &amp; Performance, by Dwon logo" width="476" height="566" loading="lazy">
+      <p class="eyebrow eyebrow-bars"><span aria-hidden="true"></span>A note from Dwon<span aria-hidden="true"></span></p>
+      <h2 class="letter-title" id="letterTitle">Thank you</h2>
+      <div class="letter-body">
+        <p>Thank you for trusting Lift Lab with your training.</p>
+        <p>Every plan here starts from your own numbers: your height, your weight, your day. That's why it's called a lab. We measure, we test, and we adjust.</p>
+        <p>The plan is only half the work. The other half is you: eating your protein, showing up for your sessions, sleeping on time. Give it twelve honest weeks and send me your progress. I want to see it.</p>
+        <p>Let's lift.</p>
+      </div>
+      <p class="signature">— DWON</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-grid">
+    <div>
+      <img class="footer-mark" src="assets/logo-mark.webp" alt="" width="101" height="80" loading="lazy">
+      <p class="footer-word">LIFT LAB <span>by DWON</span></p>
+      <p class="footer-blurb">Online diet and training plans built on your own numbers.</p>
+    </div>
+    <div>
+      <p class="footer-h">WhatsApp</p>
+      <p class="wa-num footer-num">+91 98769 63879</p>
+      <a class="footer-link" id="waFooter" href="#" target="_blank" rel="noopener">Message Dwon →</a>
+    </div>
+    <nav aria-label="Footer">
+      <p class="footer-h">Pages</p>
+      <a class="footer-link" href="#lab">The Lab</a>
+      <a class="footer-link" href="#plan">Your Plan</a>
+      <a class="footer-link" href="#join">Join</a>
+    </nav>
+    <p class="footer-fine">The calculator uses standard formulas (Mifflin–St Jeor for calories, WHO and Asian cut-offs for BMI). Results are estimates, not medical advice. Track your weight for 2–3 weeks and adjust. Photos from Unsplash.</p>
+    <p class="footer-fine">© <span id="year">2026</span> Lift Lab by Dwon</p>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
