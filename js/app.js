@@ -411,7 +411,7 @@
       return;
     }
     unlockErr.textContent = {
-      format: 'That doesn’t look like a Lift Lab code. It should look like LL-ABC-DEFGH.',
+      format: 'That doesn’t look like a Lift Lab code. It should look like LL-ABC-DEFG-HJKLM.',
       invalid: 'This code isn’t valid. Check it letter by letter, or message Dwon on WhatsApp.',
       expired: `This code ran out on ${res.expires ? L.fmtDate(res.expires) : 'an earlier date'}. Renew for ₹${CFG.price} to get a new one.`,
     }[res.reason];

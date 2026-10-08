@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=20261009c">
+  <link rel="stylesheet" href="css/style.css?v=20261009d">
   <style>
     .desk { padding-block: calc(var(--nav-h) + 32px) 80px; }
     .desk-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px; align-items: start; margin-top: 40px; }
@@ -27,6 +27,17 @@
     .bad { color: #ff7a6b !important; }
     .gate { max-width: 440px; margin: 40px auto 0; }
     .pin-line { font-family: var(--f-mono); font-size: var(--fs-sm); background: var(--black); border: 1px solid var(--line); padding: 12px; overflow-wrap: anywhere; user-select: all; color: var(--chrome); }
+    .codes-panel { grid-column: 1 / -1; }
+    .codes-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+    .codes-head input { max-width: 320px; }
+    .codes-table { width: 100%; min-width: 620px; border-collapse: collapse; font-size: var(--fs-sm); }
+    .codes-table th { text-align: left; font-family: var(--f-mono); font-weight: 500; font-size: .6875rem; letter-spacing: .12em; text-transform: uppercase; color: var(--dim); padding: 0 10px 10px 0; border-bottom: 1px solid var(--line); }
+    .codes-table td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--plate); vertical-align: top; }
+    .codes-table td.code { font-family: var(--f-mono); color: var(--orange); white-space: nowrap; user-select: all; }
+    .codes-table td.num, .codes-table td.date { font-family: var(--f-mono); color: var(--steel); white-space: nowrap; }
+    .pill { display: inline-block; padding: 2px 8px; font-family: var(--f-mono); font-size: .6875rem; letter-spacing: .1em; text-transform: uppercase; }
+    .pill.on { background: var(--plate-green); color: var(--black); }
+    .pill.off { background: var(--plate); color: var(--dim); }
     @media (max-width: 900px) { .desk-grid { grid-template-columns: minmax(0, 1fr); } }
   </style>
 </head>
@@ -104,7 +115,7 @@
         <h2>Check a code</h2>
         <div class="field">
           <label for="checkCode">Code</label>
-          <input id="checkCode" type="text" autocomplete="off" spellcheck="false" placeholder="LL-XXX-XXXXX" maxlength="14" style="text-transform:uppercase">
+          <input id="checkCode" type="text" autocomplete="off" spellcheck="false" placeholder="LL-XXX-XXXX-XXXXX" maxlength="22" style="text-transform:uppercase">
         </div>
         <button class="btn btn-small" type="submit">Check</button>
         <p id="checkOut" aria-live="polite"></p>
@@ -122,11 +133,28 @@
         <p class="pin-line" id="pinLine" hidden></p>
       </form>
     </div>
+
+    <!-- Every code made on this device -->
+    <section class="panel codes-panel" aria-labelledby="codesTitle">
+      <div class="codes-head">
+        <h2 id="codesTitle">Codes you've made</h2>
+        <label class="sr-only" for="codeSearch">Search codes</label>
+        <input id="codeSearch" type="text" autocomplete="off" placeholder="Search name, number or code">
+      </div>
+      <p>Saved on this phone or laptop only. Make codes from the same device so the list stays complete.</p>
+      <div class="table-wrap">
+        <table class="codes-table">
+          <thead><tr><th scope="col">Client</th><th scope="col">WhatsApp</th><th scope="col">Code</th><th scope="col">Paid on</th><th scope="col">Valid till</th><th scope="col">Status</th></tr></thead>
+          <tbody id="codesBody"></tbody>
+        </table>
+      </div>
+      <p id="codesEmpty">No codes yet. Every code you make will show up here.</p>
+    </section>
   </div>
 </main>
 
-<script src="js/config.js?v=20261009c"></script>
-<script src="js/engine.js?v=20261009c"></script>
-<script src="js/coach.js?v=20261009c"></script>
+<script src="js/config.js?v=20261009d"></script>
+<script src="js/engine.js?v=20261009d"></script>
+<script src="js/coach.js?v=20261009d"></script>
 </body>
 </html>

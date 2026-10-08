@@ -956,8 +956,10 @@
 
   /* ------------------------------------------------------------------ */
   /* Unlock codes                                                        */
-  /* A code holds its own expiry date plus a signature made with the     */
-  /* secret in config.js. Format: LL-XXX-YYYYY.                          */
+  /* A code holds its own expiry date, a random part that makes every    */
+  /* client's code different, and a signature made with the secret in    */
+  /* config.js. Format: LL-XXX-NNNN-SSSSS (expiry-random-signature).     */
+  /* Older codes without the random part (LL-XXX-SSSSS) still work.      */
   /* ------------------------------------------------------------------ */
 
   // cyrb53 string hash.
@@ -1011,20 +1013,37 @@
     return encode(hash(`${secret}|${payload}`) % 33554432, 5); // 32^5
   }
 
-  function makeCode(expiryDate, secret) {
-    const payload = encode(dayNumber(expiryDate), 3);
-    return `LL-${payload}-${signature(payload, secret)}`;
+  function randomPart() {
+    const n = (global.crypto && global.crypto.getRandomValues)
+      ? global.crypto.getRandomValues(new Uint32Array(1))[0]
+      : Math.floor(Math.random() * 4294967296);
+    return encode(n % 1048576, 4); // 32^4
+  }
+
+  function makeCode(expiryDate, secret, nonce = randomPart()) {
+    const expiry = encode(dayNumber(expiryDate), 3);
+    return `LL-${expiry}-${nonce}-${signature(expiry + nonce, secret)}`;
   }
 
   function checkCode(code, secret, today = new Date()) {
     const clean = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (!/^LL[A-Z0-9]{8}$/.test(clean)) return { ok: false, reason: 'format' };
-    const payload = clean.slice(2, 5);
-    const sig = clean.slice(5);
-    if (Number.isNaN(decode(payload)) || signature(payload, secret) !== sig) return { ok: false, reason: 'invalid' };
-    const expires = dateFromDay(decode(payload));
-    if (dayNumber(expires) < dayNumber(today)) return { ok: false, reason: 'expired', expires };
-    return { ok: true, expires, code: `LL-${payload}-${sig}` };
+    let expiry;
+    let nonce = '';
+    let sig;
+    if (/^LL[A-Z0-9]{12}$/.test(clean)) {
+      [expiry, nonce, sig] = [clean.slice(2, 5), clean.slice(5, 9), clean.slice(9)];
+    } else if (/^LL[A-Z0-9]{8}$/.test(clean)) {
+      [expiry, sig] = [clean.slice(2, 5), clean.slice(5)]; // older code without the random part
+    } else {
+      return { ok: false, reason: 'format' };
+    }
+    if (Number.isNaN(decode(expiry)) || Number.isNaN(decode(nonce)) || signature(expiry + nonce, secret) !== sig) {
+      return { ok: false, reason: 'invalid' };
+    }
+    const expires = dateFromDay(decode(expiry));
+    const pretty = nonce ? `LL-${expiry}-${nonce}-${sig}` : `LL-${expiry}-${sig}`;
+    if (dayNumber(expires) < dayNumber(today)) return { ok: false, reason: 'expired', expires, code: pretty };
+    return { ok: true, expires, code: pretty };
   }
 
   /* ------------------------------------------------------------------ */

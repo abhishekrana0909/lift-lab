@@ -24,6 +24,7 @@
     if (pinHash($('#pin').value.trim()) === CFG.coachPinHash) {
       $('#pinErr').textContent = '';
       openDesk();
+      renderCodes();
     } else {
       $('#pinErr').textContent = 'Wrong PIN. Try again.';
     }
@@ -38,6 +39,39 @@
   function siteLink() {
     try { return new URL('index.html#plan', window.location.href).href; } catch (e) { return 'the Lift Lab website'; }
   }
+
+  /* ---------- Record of codes made on this device ---------- */
+
+  const STORE_CODES = 'liftlab.coach.codes.v1';
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function loadCodes() {
+    try { return JSON.parse(localStorage.getItem(STORE_CODES)) || []; } catch (e) { return []; }
+  }
+  function saveCodes(list) {
+    try { localStorage.setItem(STORE_CODES, JSON.stringify(list.slice(0, 1000))); } catch (e) { /* storage blocked */ }
+  }
+  const fromInputDate = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const showPhone = (p) => (p ? `+91 ${p.slice(2, 7)} ${p.slice(7)}` : '');
+
+  function renderCodes() {
+    const q = $('#codeSearch').value.trim().toLowerCase().replace(/[\s-]/g, '');
+    const rows = loadCodes().filter((c) => !q || `${c.name}${c.phone}${c.code}`.toLowerCase().replace(/[\s-]/g, '').includes(q));
+    $('#codesBody').innerHTML = rows.map((c) => {
+      const active = L.checkCode(c.code, CFG.secret).ok;
+      return `<tr>
+        <td>${esc(c.name || '—')}</td>
+        <td class="num">${esc(showPhone(c.phone))}</td>
+        <td class="code">${esc(c.code)}</td>
+        <td class="date">${esc(L.fmtDate(fromInputDate(c.paid)))}</td>
+        <td class="date">${esc(L.fmtDate(fromInputDate(c.expires)))}</td>
+        <td><span class="pill ${active ? 'on' : 'off'}">${active ? 'Active' : 'Expired'}</span></td>
+      </tr>`;
+    }).join('');
+    $('#codesEmpty').hidden = rows.length > 0;
+    $('#codesEmpty').textContent = loadCodes().length ? 'No codes match that search.' : 'No codes yet. Every code you make will show up here.';
+  }
+  $('#codeSearch').addEventListener('input', renderCodes);
 
   function cleanPhone(raw) {
     const digits = String(raw || '').replace(/\D/g, '');
@@ -56,8 +90,14 @@
     const [y, m, d] = ($('#startDate').value || toInputDate(new Date())).split('-').map(Number);
     const days = Math.max(1, Math.min(400, Number($('#validDays').value) || CFG.validDays));
     const expiry = new Date(y, m - 1, d + days);
-    const code = L.makeCode(expiry, CFG.secret);
     const name = $('#clientName').value.trim();
+    // Every client gets their own code; try again in the rare case it matches one already given out.
+    const made = loadCodes();
+    let code = L.makeCode(expiry, CFG.secret);
+    for (let i = 0; i < 20 && made.some((c) => c.code === code); i++) code = L.makeCode(expiry, CFG.secret);
+    made.unshift({ code, name, phone: phone || '', paid: toInputDate(new Date(y, m - 1, d)), expires: toInputDate(expiry), made: new Date().toISOString() });
+    saveCodes(made);
+    renderCodes();
 
     const msg = [
       `Hi${name ? ` ${name}` : ''}, thanks for joining Lift Lab! 💪`,
@@ -105,9 +145,11 @@
     e.preventDefault();
     const out = $('#checkOut');
     const res = L.checkCode($('#checkCode').value, CFG.secret);
+    const rec = res.code && loadCodes().find((c) => c.code === res.code);
+    const forWho = rec ? ` Made for ${rec.name || 'a client'}${rec.phone ? ` (${showPhone(rec.phone)})` : ''}, paid on ${L.fmtDate(fromInputDate(rec.paid))}.` : '';
     out.className = res.ok ? 'ok' : 'bad';
-    if (res.ok) out.textContent = `Valid. Open till ${L.fmtDate(res.expires)}.`;
-    else if (res.reason === 'expired') out.textContent = `Real code, but it ran out on ${L.fmtDate(res.expires)}.`;
+    if (res.ok) out.textContent = `Valid. Open till ${L.fmtDate(res.expires)}.${forWho}`;
+    else if (res.reason === 'expired') out.textContent = `Real code, but it ran out on ${L.fmtDate(res.expires)}.${forWho}`;
     else out.textContent = 'Not a valid Lift Lab code.';
   });
 
@@ -124,4 +166,6 @@
     }
     line.textContent = `coachPinHash: ${pinHash(pin)},`;
   });
+
+  if (!$('#desk').hidden) renderCodes();
 })();

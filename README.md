@@ -31,7 +31,7 @@ Logo badalna ho to nayi image inhi naamon se `assets` mein daal do.
 
 QR badalna ho to nayi image `assets/upi-qr.png` naam se daal do.
 
-**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261009c` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261009c`). Warna logon ke phone purani cached file chalate rahenge.
+**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261009d` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261009d`). Warna logon ke phone purani cached file chalate rahenge.
 
 ## Client ka plan kaise unlock hota hai
 
@@ -40,6 +40,10 @@ QR badalna ho to nayi image `assets/upi-qr.png` naam se daal do.
 3. Aap `coach.html` kholte ho, PIN daalte ho, client ka naam/number daal ke **Make code** dabate ho.
 4. **Send on WhatsApp** se code client ko chala jata hai. Client code daalta hai aur plan khul jata hai.
 5. Code 30 din baad apne aap band ho jata hai. Agle mahine payment ke baad naya code bhejo.
+
+**Har client ka code alag.** Code aisa dikhta hai: `LL-2BR-9ZGH-A3KMN`. Ek hi din do clients ke code banao to bhi dono alag honge. Purane chhote codes (`LL-2BR-RPNAL` jaise) bhi chalte rahenge.
+
+**Codes ki list:** coach page par neeche "Codes you've made" mein har code ka client, number, payment date, expiry aur Active/Expired dikhta hai. Ye list usi phone/laptop mein save hoti hai jisse code banaya, isliye codes hamesha ek hi device se banao.
 
 **Ek code = ek insaan.** Code daalte waqt jiski details bhari hoti hain (naam, gender, umar, height), plan sirf usi ke liye khulta hai. Wo apna weight, goal, food ya workout badal sakta hai. Usi phone par kisi doosre insaan ki details bharoge to plan lock ho jayega, aur use apna code chahiye hoga.
 
