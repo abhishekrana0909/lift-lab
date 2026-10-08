@@ -12,7 +12,7 @@
 
   const EXAMPLE = {
     name: '', sex: 'male', age: 25, weight: 78, hunit: 'cm', heightCm: 175, heightFt: '', heightIn: '',
-    activity: 'moderate', goal: 'lose', diet: 'veg', level: 'beginner', whey: false, fish: false, place: 'gym', days: '4',
+    activity: 'moderate', goal: 'lose', diet: 'veg', level: 'beginner', whey: false, fish: false, meatDays: '3', place: 'gym', days: '4',
     style: 'auto',
   };
 
@@ -131,7 +131,7 @@
 
   // Fish only makes sense for non-veg; the week strip shows what the chosen split looks like.
   function syncPlanChoices() {
-    $('#fishRow').hidden = $('#diet').value !== 'nonveg';
+    $('#nonvegBox').hidden = $('#diet').value !== 'nonveg';
     const days = Number(getRadio('days')) || 4;
     $('#weekPreview').innerHTML = L.weekPreview(days, styleSel.value).map((d) =>
       `<li class="${d.session ? 'train' : ''}"><b>${d.day.slice(0, 3)}</b>${d.session ? esc(d.session) : 'Rest'}</li>`).join('');
@@ -161,6 +161,7 @@
     $('#level').value = v.level;
     $('#whey').checked = !!v.whey;
     $('#fish').checked = !!v.fish;
+    setRadio('meatDays', String(v.meatDays || 3));
     setRadio('place', v.place);
     setRadio('days', String(v.days));
     styleSel.value = L.SPLIT_STYLES[v.style] ? v.style : 'auto';
@@ -185,6 +186,7 @@
       level: $('#level').value,
       whey: $('#whey').checked,
       fish: $('#fish').checked,
+      meatDays: getRadio('meatDays'),
       place: getRadio('place'),
       days: getRadio('days'),
       style: styleSel.value,
@@ -318,6 +320,16 @@
     $('#waReport').href = waLink(reportMessage(state));
   }
 
+  function foodText(values) {
+    let text = $('#diet').selectedOptions[0].textContent;
+    if (values.diet === 'nonveg') {
+      const n = Number(values.meatDays) || 7;
+      text += n >= 7 ? ', chicken daily' : `, chicken ${n} days/week`;
+      if (values.fish) text += ' + fish';
+    }
+    return text;
+  }
+
   function reportMessage({ values, input, report: r }) {
     const lines = [
       `Hi Dwon, here is my Lift Lab report.`,
@@ -327,7 +339,7 @@
       `Height: ${fmt(input.height, input.height % 1 ? 1 : 0)} cm · Weight: ${input.weight} kg`,
       `Activity: ${L.ACTIVITY[input.activity].label}`,
       `Goal: ${L.GOALS[input.goal].label}`,
-      `Food: ${$('#diet').selectedOptions[0].textContent}${values.diet === 'nonveg' && values.fish ? ' + fish' : ''}`,
+      `Food: ${foodText(values)}`,
       `Training: ${values.place}, ${values.days} days/week, ${L.SPLIT_STYLES[values.style].label}`,
       ``,
       `BMI: ${r.bmi.toFixed(1)} (${r.category.label})`,
@@ -406,6 +418,7 @@
       diet: values.diet,
       whey: values.whey,
       fish: values.fish,
+      meatDays: Number(values.meatDays) || 7,
       level: values.level,
       place: values.place,
       days: Number(values.days),
@@ -423,7 +436,7 @@
 
   // Who this plan was built for, so a new person can see at a glance that the plan is theirs.
   function renderPlanFor(values, input, r) {
-    const food = $('#diet').selectedOptions[0].textContent + (values.diet === 'nonveg' && values.fish ? ' + fish' : '');
+    const food = foodText(values);
     const level = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' }[values.level];
     const who = values.name ? `${values.name}'s plan` : 'Your plan';
     $('#planFor').innerHTML = `
@@ -464,7 +477,7 @@
     const t = day.totals;
     const match = Math.round((1 - Math.abs(t.kcal - r.target) / r.target) * 100);
     $('#dayTotal').innerHTML = `
-      <span>${day.name} · <span class="day-kind${day.training ? ' is-train' : ''}">${day.training ? `Training · ${esc(day.training)}` : 'Rest day'}</span></span>
+      <span>${day.name} · <span class="day-kind${day.training ? ' is-train' : ''}">${day.training ? `Training · ${esc(day.training)}` : 'Rest day'}</span>${day.meatDay && current.values.diet === 'nonveg' && Number(current.values.meatDays) < 7 ? ' · <span class="day-kind is-train">Chicken day</span>' : ''}</span>
       <span>Total <b>${fmt(t.kcal)}</b> / ${fmt(r.target)} kcal</span>
       <span>P <b>${fmt(t.p)}</b> / ${r.protein} g</span>
       <span>C <b>${fmt(t.c)}</b> / ${r.carbs} g</span>

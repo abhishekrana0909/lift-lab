@@ -571,9 +571,12 @@
     return { options, list };
   }
 
-  function chooseTemplate(order, d, used, yesterday, ctx, slotKey, training) {
+  // `rule` narrows the choice: 'meat' = must contain chicken or fish, 'noMeat' = must not.
+  function chooseTemplate(order, d, used, yesterday, ctx, slotKey, training, rule) {
     const { options, list } = order;
     const clash = (t) => mainFoods(t, ctx).some((f) => used.has(f));
+    const meaty = (t) => mainFoods(t, ctx).some((f) => f === 'chicken' || f === 'fish');
+    const allowed = (t) => (rule === 'meat' ? meaty(t) : rule === 'noMeat' ? !meaty(t) : true);
     if (slotKey === 'evening') {
       // Training days get the protein + fast carbs snack after the workout.
       const workout = options.find((t) => t.fit === 'workout');
@@ -581,11 +584,23 @@
     }
     for (let k = 0; k < list.length; k++) {
       const t = list[(d * 3 + k) % list.length];
+      if (!allowed(t)) continue;
       if (slotKey === 'evening' && !training && t.fit === 'workout' && options.length > 1) continue;
       if (t === yesterday && options.length > 2) continue;
       if (!clash(t)) return t;
     }
-    return list[(d * 3) % list.length];
+    return list.find(allowed) || list[(d * 3) % list.length];
+  }
+
+  // Which days of the week get chicken (or fish). Training days come first because protein matters
+  // most for recovery; the picks are spread out so meat days don't bunch together.
+  function meatDaysFor(count, week) {
+    if (count >= 7) return new Set([0, 1, 2, 3, 4, 5, 6]);
+    const spread = (list, n) => Array.from({ length: n }, (_, i) => list[Math.floor((i * list.length) / n)]);
+    const trainDays = week.map((s, i) => (s ? i : null)).filter((i) => i !== null);
+    const restDays = week.map((s, i) => (s ? null : i)).filter((i) => i !== null);
+    if (count <= trainDays.length) return new Set(spread(trainDays, count));
+    return new Set([...trainDays, ...spread(restDays, count - trainDays.length)]);
   }
 
   function dietPlan(report, prefs) {
@@ -599,28 +614,42 @@
       seed: personSeed(report.input, prefs.name),
       sf: Math.min(1.9, Math.max(0.55, report.target / 2200)),
     };
+    // Non-veg people eat eggs and veg food on the days they skip chicken.
+    const nonveg = prefs.diet === 'nonveg';
+    const eggCtx = { ...ctx, diet: 'egg', fish: false };
     const count = mealCount(report.target);
     const shares = SLOT_SHARES[count];
     const slots = MEALS.filter((s) => shares[s.key]);
-    const orders = slots.map((s, i) => weeklyOrder(s, ctx, Math.imul(i + 1, 0x9e3779b1)));
+    const salt = (i) => Math.imul(i + 1, 0x9e3779b1);
+    const orders = slots.map((s, i) => weeklyOrder(s, ctx, salt(i)));
+    const eggOrders = nonveg ? slots.map((s, i) => weeklyOrder(s, eggCtx, salt(i))) : null;
     const week = splitFor(prefs.days, prefs.style).week;
+    const meatDays = nonveg ? meatDaysFor(Number(prefs.meatDays) || 7, week) : null;
     const yesterday = {};
     const days = [];
+    let meatCount = 0;
     for (let d = 0; d < 7; d++) {
       const used = new Set();
       const session = week[d];
+      const meatDay = nonveg && meatDays.has(d);
+      const dayCtx = nonveg && !meatDay ? eggCtx : ctx;
+      const dayOrders = nonveg && !meatDay ? eggOrders : orders;
+      // One chicken meal on a meat day, alternating between lunch and dinner through the week.
+      const meatSlot = meatDay ? (meatCount++ % 2 === 0 ? 'lunch' : 'dinner') : null;
       const meals = slots.map((slot, i) => {
-        const template = chooseTemplate(orders[i], d, used, yesterday[slot.key], ctx, slot.key, !!session);
+        let rule = null;
+        if (meatDay && (slot.key === 'lunch' || slot.key === 'dinner')) rule = slot.key === meatSlot ? 'meat' : 'noMeat';
+        const template = chooseTemplate(dayOrders[i], d, used, yesterday[slot.key], dayCtx, slot.key, !!session, rule);
         yesterday[slot.key] = template;
-        mainFoods(template, ctx).forEach((f) => used.add(f));
+        mainFoods(template, dayCtx).forEach((f) => used.add(f));
         const share = shares[slot.key];
         const target = { p: report.protein * share, c: report.carbs * share, f: report.fat * share };
         return {
           key: slot.key,
           label: slot.key === 'evening' && session ? 'Post-workout' : slot.label,
           time: slot.time,
-          title: mealTitle(template, ctx),
-          items: solveMeal(template, target, ctx),
+          title: mealTitle(template, dayCtx),
+          items: solveMeal(template, target, dayCtx),
         };
       });
       correctDay(meals, report);
@@ -629,6 +658,7 @@
         meals,
         totals: totalsOf(meals),
         training: session ? SESSIONS[session].name.split(' · ')[0] : null,
+        meatDay,
       });
     }
     return days;

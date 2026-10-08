@@ -592,7 +592,14 @@ select {
 }
 
 .form-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
-.check-sub { margin-top: 4px; }
+.nonveg-box {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--orange);
+  background: var(--black);
+}
 .week-preview {
   list-style: none;
   margin: 0;
