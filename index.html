@@ -12,7 +12,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://images.unsplash.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="css/style.css?v=20261009d">
+  <link rel="stylesheet" href="css/style.css?v=20261120c">
+  <link rel="stylesheet" href="css/motion.css?v=20261120c">
 </head>
 <body>
 
@@ -46,7 +47,9 @@
     <div class="hero-photo" role="img" aria-label="A bodybuilder posing in a dark studio"></div>
     <div class="hero-inner wrap">
       <p class="eyebrow">Online coaching · Diet + training</p>
-      <img class="hero-logo" src="assets/logo-emblem.webp" alt="Lift Lab emblem: a flexed arm lifting a barbell inside a hexagon" width="440" height="348">
+      <div class="hero-logo-wrap">
+        <img class="hero-logo" src="assets/logo-emblem.webp" alt="Lift Lab emblem: a flexed arm lifting a barbell inside a hexagon" width="440" height="348">
+      </div>
       <h1 class="hero-word" aria-label="Lift Lab"><span aria-hidden="true">LIFT LAB</span></h1>
       <p class="hero-by">by <b>DWON</b></p>
       <p class="hero-lede">Real formulas. Indian food. A plan built on your own numbers.</p>
@@ -311,6 +314,12 @@
           <div class="ghost-cards"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="lock-card">
+          <svg class="padlock" viewBox="0 0 64 64" width="52" height="52" aria-hidden="true">
+            <path class="shackle" d="M20 28v-8a12 12 0 0 1 24 0v8" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+            <rect x="12" y="28" width="40" height="28" rx="5" fill="currentColor"/>
+            <circle cx="32" cy="40" r="4" fill="#0b0b0c"/>
+            <rect x="30" y="40" width="4" height="9" rx="2" fill="#0b0b0c"/>
+          </svg>
           <p class="eyebrow">Locked</p>
           <h3>Your 7-day diet plan and weekly workout plan are ready</h3>
           <p class="lock-note" id="lockNote" role="status" hidden></p>
@@ -319,7 +328,7 @@
           <form class="unlock" id="unlockForm" novalidate>
             <label for="unlockCode">Have a code from Dwon?</label>
             <div class="unlock-row">
-              <input id="unlockCode" name="unlockCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="LL-XXX-XXXX-XXXXX" maxlength="22">
+              <input id="unlockCode" name="unlockCode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Your code" maxlength="22">
               <button class="btn btn-primary" type="submit">Unlock</button>
             </div>
             <p class="err" id="unlockErr" role="alert"></p>
@@ -392,40 +401,55 @@
         </article>
       </div>
 
-      <ol class="steps">
-        <li class="step">
-          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1587996580981-bd03dde74843?auto=format&fit=crop&w=700&h=700&q=70" alt="Someone holding a meal-prep box of chicken and vegetables" width="700" height="700" loading="lazy"></figure>
-          <div class="step-text">
-            <span class="step-no">01</span>
-            <h3>Check your numbers</h3>
-            <p>Fill in the free calculator above. Your plan is built from this report.</p>
+      <div class="steps-wrap" id="stepsWrap">
+        <div class="bar-stage" id="barStage" aria-hidden="true">
+          <canvas id="barCanvas"></canvas>
+          <div class="bar-hud">
+            <div class="bar-top">
+              <span class="bar-tag">Lift Lab · bar loader</span>
+              <div class="bar-progress"><i></i><i></i><i></i><i></i></div>
+            </div>
+            <div class="bar-bottom">
+              <div class="bar-readout"><b id="barKg">20</b><small>kg on the bar</small></div>
+              <span class="bar-state" id="barState">Empty bar</span>
+            </div>
           </div>
-        </li>
-        <li class="step">
-          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1644085159448-1659fd88a217?auto=format&fit=crop&w=700&h=700&q=70" alt="Chalked hands gripping a kettlebell" width="700" height="700" loading="lazy"></figure>
-          <div class="step-text">
-            <span class="step-no">02</span>
-            <h3>Pay ₹<span data-price>499</span> by UPI</h3>
-            <p>Scan the QR code or copy the UPI ID. Take a screenshot of the payment.</p>
-          </div>
-        </li>
-        <li class="step">
-          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1576913105965-1d0b6a19a482?auto=format&fit=crop&w=700&h=700&q=70" alt="A man standing in a dim room with smoke around him" width="700" height="700" loading="lazy"></figure>
-          <div class="step-text">
-            <span class="step-no">03</span>
-            <h3>Send it on WhatsApp</h3>
-            <p>Send the screenshot to <b class="wa-num">+91 98769 63879</b>. Dwon replies with your unlock code.</p>
-          </div>
-        </li>
-        <li class="step">
-          <figure class="step-photo"><img src="https://images.unsplash.com/photo-1734630341082-0fec0e10126c?auto=format&fit=crop&w=700&h=700&q=70" alt="A row of dumbbells on a rack in a dark gym" width="700" height="700" loading="lazy"></figure>
-          <div class="step-text">
-            <span class="step-no">04</span>
-            <h3>Unlock your plan</h3>
-            <p>Enter the code in <a href="#plan">Your Plan</a>. It stays open on this phone until the date on your code.</p>
-          </div>
-        </li>
-      </ol>
+        </div>
+        <ol class="steps">
+          <li class="step">
+            <figure class="step-photo"><img src="https://images.unsplash.com/photo-1587996580981-bd03dde74843?auto=format&fit=crop&w=700&h=700&q=70" alt="Someone holding a meal-prep box of chicken and vegetables" width="700" height="700" loading="lazy"></figure>
+            <div class="step-text">
+              <span class="step-no">01</span>
+              <h3>Check your numbers</h3>
+              <p>Fill in the free calculator above. Your plan is built from this report.</p>
+            </div>
+          </li>
+          <li class="step">
+            <figure class="step-photo"><img src="https://images.unsplash.com/photo-1644085159448-1659fd88a217?auto=format&fit=crop&w=700&h=700&q=70" alt="Chalked hands gripping a kettlebell" width="700" height="700" loading="lazy"></figure>
+            <div class="step-text">
+              <span class="step-no">02</span>
+              <h3>Pay ₹<span data-price>499</span> by UPI</h3>
+              <p>Scan the QR code or copy the UPI ID. Take a screenshot of the payment.</p>
+            </div>
+          </li>
+          <li class="step">
+            <figure class="step-photo"><img src="https://images.unsplash.com/photo-1576913105965-1d0b6a19a482?auto=format&fit=crop&w=700&h=700&q=70" alt="A man standing in a dim room with smoke around him" width="700" height="700" loading="lazy"></figure>
+            <div class="step-text">
+              <span class="step-no">03</span>
+              <h3>Send it on WhatsApp</h3>
+              <p>Send the screenshot to <b class="wa-num">+91 98769 63879</b>. Dwon replies with your unlock code.</p>
+            </div>
+          </li>
+          <li class="step">
+            <figure class="step-photo"><img src="https://images.unsplash.com/photo-1734630341082-0fec0e10126c?auto=format&fit=crop&w=700&h=700&q=70" alt="A row of dumbbells on a rack in a dark gym" width="700" height="700" loading="lazy"></figure>
+            <div class="step-text">
+              <span class="step-no">04</span>
+              <h3>Unlock your plan</h3>
+              <p>Enter the code in <a href="#plan">Your Plan</a>. It stays open on this phone until the date on your code.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
     </div>
   </section>
 
@@ -505,8 +529,10 @@
   </div>
 </footer>
 
-<script src="js/config.js?v=20261009d"></script>
-<script src="js/engine.js?v=20261009d"></script>
-<script src="js/app.js?v=20261009d"></script>
+<script src="js/config.js?v=20261120c"></script>
+<script src="vendor/gsap.min.js?v=3.15.1"></script>
+<script src="js/engine.js?v=20261120c"></script>
+<script src="js/motion.js?v=20261120c"></script>
+<script src="js/app.js?v=20261120c"></script>
 </body>
 </html>

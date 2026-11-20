@@ -11,6 +11,9 @@ Online coaching website: free BMI / calorie / macro calculator, and a ₹499/mon
 | `js/config.js` | **Settings**: WhatsApp number, UPI ID, price, coach PIN |
 | `js/engine.js` | Saare formulas: BMI, calories, macros, diet plan, workout plan, codes |
 | `js/app.js` | Website ke buttons aur form |
+| `js/motion.js`, `css/motion.css` | Animations: hero ki roshni, report ka scan, unlock ka padlock, 3D barbell |
+| `js/barbell.js`, `js/src/barbell.src.js` | 3D barbell (`barbell.js` bana-banaya hai, asli code `src` mein) |
+| `vendor/` | GSAP (animation library) aur licence notes |
 | `css/style.css` | Design |
 | `assets/upi-qr.png` | UPI QR code |
 | `assets/logo.webp` | Poora logo, bina background (Thank you letter ke upar) |
@@ -31,7 +34,27 @@ Logo badalna ho to nayi image inhi naamon se `assets` mein daal do.
 
 QR badalna ho to nayi image `assets/upi-qr.png` naam se daal do.
 
-**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261009d` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261009d`). Warna logon ke phone purani cached file chalate rahenge.
+**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261120c` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261121a`). Warna logon ke phone purani cached file chalate rahenge.
+
+## Animations aur 3D barbell
+
+- **Hero:** bande ki photo black and white hai. Mouse ke saath ek roshni chalti hai (phone par apne aap ghoomti hai). Logo par chamak aati hai aur mouse se tilt hota hai.
+- **Report:** "Run my numbers" dabate hi scan line chalti hai, BMI aur numbers 0 se ginti ke saath aate hain.
+- **Unlock:** code sahi hote hi padlock khulta hai, phir diet plan ek-ek card karke aata hai.
+- **How it works:** laptop/achhe phone par 3D barbell dikhta hai. Har step par ek plate chadhti hai (20 kg se 160 kg tak). Kamzor phone par pehle jaisi photo tiles dikhti hain.
+
+**Band karna ho:** `js/config.js` mein `motion: false` (sab animation band) ya `barbell3d: false` (sirf 3D band).
+
+Ye apne aap band ho jaata hai: jab phone mein "reduce motion" on ho, WebGL na ho, data saver on ho, ya phone itna dheema ho ki 3D smooth na chale.
+
+**3D code badalna ho:** `js/src/barbell.src.js` mein badlo (plates ka size, camera, rang), phir `js/barbell.js` dobara banao:
+
+```
+npm install --no-save esbuild three@0.186.0
+npx esbuild js/src/barbell.src.js --bundle --format=esm --minify --target=es2020 --legal-comments=none --outfile=js/barbell.js
+```
+
+Uske baad `index.html` mein `?v=` badalna mat bhoolna.
 
 ## Client ka plan kaise unlock hota hai
 

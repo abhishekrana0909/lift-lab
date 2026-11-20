@@ -1,0 +1,218 @@
+/* Motion layer for Lift Lab: black and white hero, the pinned 3D barbell, the report scan and the padlock.
+   It sits on top of style.css. Everything animated is also switched off under prefers-reduced-motion. */
+
+/* ---------- Hero: black and white, lit from the cursor ---------- */
+
+/* The only colour left in the hero is the orange of the emblem. */
+.hero-photo {
+  filter: grayscale(1) contrast(1.18) brightness(1.04);
+  animation: develop 1.8s .1s ease-out both;
+}
+@keyframes develop {
+  from { filter: grayscale(1) contrast(1.18) brightness(.15); }
+  to { filter: grayscale(1) contrast(1.18) brightness(1.04); }
+}
+
+/* A dark veil with a hole in it that follows the light. app.js moves --lx / --ly / --lr. */
+.hero-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 9, .62);
+  -webkit-mask-image: radial-gradient(circle var(--lr, 320px) at var(--lx, 55%) var(--ly, 42%), transparent 0%, rgba(0, 0, 0, .5) 55%, #000 100%);
+  mask-image: radial-gradient(circle var(--lr, 320px) at var(--lx, 55%) var(--ly, 42%), transparent 0%, rgba(0, 0, 0, .5) 55%, #000 100%);
+  pointer-events: none;
+}
+
+/* Film grain over the whole hero */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .09;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  animation: grain 1s steps(1) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* The emblem sits in a box so a glint can sweep across it and it can tilt in 3D */
+.hero-logo-wrap {
+  position: relative;
+  display: block;
+  width: clamp(150px, 21vw, 290px);
+  margin: 4px 0 18px -6px;
+  will-change: transform;
+}
+.hero-logo-wrap .hero-logo {
+  width: 100%;
+  margin: 0;
+  filter: drop-shadow(0 18px 40px rgba(0, 0, 0, .85)) drop-shadow(0 0 32px rgba(245, 130, 31, .18));
+}
+/* The glint only shows where the emblem is: the emblem's own picture is the mask. */
+.hero-logo-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 38%, rgba(255, 255, 255, .9) 50%, transparent 62%) no-repeat;
+  background-size: 300% 100%;
+  background-position: 130% 0;
+  -webkit-mask: url("../assets/logo-emblem.webp") center / contain no-repeat;
+  mask: url("../assets/logo-emblem.webp") center / contain no-repeat;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  animation: glint 6.5s 2s ease-in-out infinite;
+}
+@keyframes glint {
+  0%, 55% { background-position: 130% 0; }
+  100% { background-position: -30% 0; }
+}
+
+/* ---------- Report: the scan line ---------- */
+
+.report { overflow: hidden; }
+@media (max-width: 1080px) {
+  .report { position: relative; } /* style.css makes it static here; the scan line needs a positioned parent */
+}
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--orange), transparent);
+  box-shadow: 0 0 18px 4px rgba(245, 130, 31, .55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---------- Plan: padlock ---------- */
+
+.padlock {
+  color: var(--steel);
+  display: block;
+  margin-bottom: 4px;
+  overflow: visible;
+}
+
+/* ---------- How it works: the pinned 3D barbell ---------- */
+
+.steps-wrap { margin-top: clamp(48px, 7vw, 80px); }
+.steps-wrap > .steps { margin-top: 0; }
+.bar-stage { display: none; }
+
+html.has-3d .steps-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+}
+html.has-3d .bar-stage {
+  display: block;
+  position: sticky;
+  top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 16px);
+  height: min(74vh, 640px);
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(70% 55% at 70% 50%, rgba(245, 130, 31, .17), transparent 70%),
+    linear-gradient(180deg, var(--iron), var(--black));
+  overflow: hidden;
+}
+.bar-stage canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.bar-hud {
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--f-mono);
+  pointer-events: none;
+}
+.bar-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.bar-tag { font-size: .6875rem; letter-spacing: .2em; text-transform: uppercase; color: var(--steel); }
+.bar-progress { display: grid; grid-template-columns: repeat(4, 34px); gap: 5px; }
+.bar-progress i { height: 4px; background: var(--plate); transition: background-color .3s var(--ease); }
+.bar-progress i.on { background: var(--orange); }
+.bar-bottom { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 6px 16px; }
+.bar-readout { display: grid; gap: 2px; }
+.bar-readout b {
+  font-family: var(--f-display);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  font-stretch: 110%;
+  line-height: .9;
+  color: var(--chrome);
+  font-variant-numeric: tabular-nums;
+}
+.bar-readout small { font-size: .6875rem; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); }
+.bar-state { font-size: var(--fs-xs); letter-spacing: .14em; text-transform: uppercase; color: var(--orange); text-align: right; }
+
+/* With the barbell on, the four steps become a list that scrolls beside it */
+html.has-3d .steps { display: block; }
+html.has-3d .step { display: grid; align-content: center; min-height: 62vh; }
+html.has-3d .step-photo { display: none; }
+html.has-3d .step-text {
+  aspect-ratio: auto;
+  background: transparent;
+  padding: 4px 0 4px clamp(16px, 3vw, 32px);
+  border-left: 2px solid var(--line);
+  opacity: .38;
+  transition: opacity .4s var(--ease), border-color .4s var(--ease);
+}
+html.has-3d .step-text::before { display: none; }
+html.has-3d .step.is-active .step-text { opacity: 1; border-left-color: var(--orange); }
+html.has-3d .step-no {
+  font-family: var(--f-display);
+  font-size: clamp(3rem, 6vw, 5rem);
+  font-weight: 900;
+  font-stretch: 100%;
+  line-height: .9;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--orange);
+}
+html.has-3d .step-text h3 { font-size: clamp(1.5rem, 3vw, 2.25rem); }
+html.has-3d .step-text p { font-size: var(--fs-md); max-width: 40ch; }
+
+@media (max-width: 900px) {
+  html.has-3d .steps-wrap { display: block; }
+  html.has-3d .bar-stage {
+    top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 8px);
+    height: 36vh;
+    min-height: 220px;
+    z-index: 5;
+  }
+  html.has-3d .step { min-height: 46vh; }
+  html.has-3d .step-text { padding-left: 16px; }
+  .bar-hud { padding: 12px; }
+  .bar-readout b { font-size: 2.25rem; }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo { animation: none; }
+  .hero::before { animation: none; }
+  .hero-logo-wrap::after { animation: none; display: none; }
+}
+@media (max-width: 900px) {
+  .hero::before { animation: none; } /* a still grain is enough on phones */
+}

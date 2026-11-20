@@ -4,6 +4,7 @@
 
   const L = window.LiftLab;
   const CFG = window.LL_CONFIG;
+  const M = window.LLMotion || {}; // animations from motion.js; every call below is optional
   const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -258,6 +259,7 @@
   }
 
   function renderReport(state) {
+    if (M.settle) M.settle(); // stop a running reveal before the numbers change
     const { values, input, report: r } = state;
     $('#exampleBadge').hidden = !isExample;
     $('#reportTitle').textContent = values.name ? `${values.name}'s numbers` : 'Your numbers';
@@ -406,7 +408,7 @@
       storage.set(STORE_CODE, { code: res.code, who: profileOf(current) });
       unlockErr.textContent = '';
       $('#unlockCode').value = '';
-      renderPlan();
+      renderPlan({ animate: true });
       $('#plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
@@ -421,8 +423,10 @@
 
   let dietDays = [];
   let activeDay = 0;
+  let unlockPlaying = false;
 
-  function renderPlan() {
+  // opts.animate: the code was just entered, so open the padlock first. opts.reveal: the plan has just appeared.
+  function renderPlan(opts = {}) {
     const unlock = activeCode();
     const status = $('#planStatus');
     const valid = unlock && !unlock.expired;
@@ -455,8 +459,12 @@
       note.hidden = true;
     }
 
-    $('#planLocked').hidden = !locked;
-    $('#planOpen').hidden = locked;
+    const wasOpen = !$('#planOpen').hidden;
+    const opening = !locked && !wasOpen && !unlockPlaying && !!opts.animate && !!M.unlock;
+    if (!(opening || (unlockPlaying && !locked))) {
+      $('#planLocked').hidden = !locked;
+      $('#planOpen').hidden = locked;
+    }
     if (locked) {
       if (valid && !current) status.textContent = 'Fill in your details above to see your plan';
       dietDays = [];
@@ -485,6 +493,13 @@
     renderDayTabs();
     renderDay();
     renderWorkout(L.workoutPlan(prefs, report));
+
+    if (opening) {
+      unlockPlaying = true;
+      M.unlock(() => { unlockPlaying = false; renderPlan({ reveal: true }); });
+    } else if (opts.reveal && M.revealPlan) {
+      M.revealPlan();
+    }
   }
 
   // Who this plan was built for, so a new person can see at a glance that the plan is theirs.
@@ -514,6 +529,7 @@
     activeDay = Number(btn.id.split('-')[1]);
     renderDayTabs();
     renderDay();
+    if (M.cascade) M.cascade('#meals .meal');
     $(`#day-${activeDay}`).focus();
   });
   $('#dayTabs').addEventListener('keydown', (e) => {
@@ -521,6 +537,7 @@
     activeDay = (activeDay + (e.key === 'ArrowRight' ? 1 : 6)) % 7;
     renderDayTabs();
     renderDay();
+    if (M.cascade) M.cascade('#meals .meal');
     $(`#day-${activeDay}`).focus();
   });
 
@@ -594,6 +611,7 @@
       t.tabIndex = i === j ? 0 : -1;
       $(`#${t.getAttribute('aria-controls')}`).hidden = i !== j;
     });
+    if (M.cascade) M.cascade(i === 0 ? '#meals .meal' : '#sessions .session');
   }
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => selectTab(i));
@@ -619,6 +637,7 @@
     e.preventDefault();
     isExample = false;
     if (run()) {
+      if (M.report) M.report();
       if (window.matchMedia('(max-width: 1080px)').matches) {
         $('#report').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }

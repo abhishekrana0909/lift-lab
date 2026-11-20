@@ -19,6 +19,11 @@ window.LL_CONFIG = {
   // Signs the unlock codes. If you change it, every code given out so far stops working.
   secret: 'bx4mhup5UCBBnrmlq3mR5jQJ',
 
+  // Animations. Set motion to false to switch every animation off, or barbell3d to false for only the
+  // 3D barbell (the photo steps show instead). Slow phones and "reduce motion" already turn it off by themselves.
+  motion: true,
+  barbell3d: true,
+
   // Hash of the coach page PIN. To set a new PIN, open coach.html, unlock it, and use "Change PIN".
   coachPinHash: 7761831670270605,
 };
