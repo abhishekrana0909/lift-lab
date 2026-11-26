@@ -622,12 +622,11 @@
 
   /* ---------- Run ---------- */
 
-  function run({ quiet = false, save = true } = {}) {
+  function run({ quiet = false } = {}) {
     const values = readForm();
     const state = compute(values, { quiet });
     if (!state) return false;
     current = state;
-    if (save && !isExample) storage.set(STORE_FORM, values);
     renderReport(state);
     renderPlan();
     return true;
@@ -663,17 +662,24 @@
     }
   });
 
-  // Wipe the saved details so the next person starts fresh. The unlock code stays on this phone,
-  // still tied to the person it was entered for.
-  $('#resetForm').addEventListener('click', () => {
-    storage.remove(STORE_FORM);
+  // Details are never kept: the form is empty every time the page opens, and after "Clear details".
+  // The report shows the example until the new details are valid. The unlock code stays on this phone,
+  // still tied to the person it was entered for, so a paid client just fills in their details again.
+  function clearDetails() {
+    storage.remove(STORE_FORM); // older versions of the site saved details here; wipe what they left
+    clearTimeout(timer);
     fillForm({ ...EXAMPLE, name: '', age: '', weight: '', heightCm: '', heightFt: '', heightIn: '' });
+    $('#unlockCode').value = '';
+    unlockErr.textContent = '';
     showErrors({});
-    // Empty form, example report: the report fills in as soon as the new details are valid.
     isExample = true;
     renderReport(compute(EXAMPLE, { quiet: true }));
     current = null;
     renderPlan();
+  }
+
+  $('#resetForm').addEventListener('click', () => {
+    clearDetails();
     const note = $('#resetNote');
     note.textContent = 'Details cleared. Fill in the new person’s details.';
     setTimeout(() => { note.textContent = ''; }, 4000);
@@ -699,13 +705,8 @@
     setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
   });
 
-  // First paint: saved details if this phone has them, otherwise an example.
-  const saved = storage.get(STORE_FORM);
-  if (saved && typeof saved === 'object') {
-    isExample = false;
-    fillForm({ ...EXAMPLE, ...saved });
-  } else {
-    fillForm(EXAMPLE);
-  }
-  run({ quiet: true, save: false });
+  // First paint: always an empty form.
+  clearDetails();
+  // Back / forward can bring the page back from memory with the last person's details still typed in.
+  window.addEventListener('pageshow', (e) => { if (e.persisted) clearDetails(); });
 })();

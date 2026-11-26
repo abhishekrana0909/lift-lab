@@ -34,7 +34,7 @@ Logo badalna ho to nayi image inhi naamon se `assets` mein daal do.
 
 QR badalna ho to nayi image `assets/upi-qr.png` naam se daal do.
 
-**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261120c` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261121a`). Warna logon ke phone purani cached file chalate rahenge.
+**Upload se pehle zaroori:** `index.html` aur `coach.html` mein CSS/JS ke link ke aage `?v=20261126a` jaisa version likha hai. Koi bhi CSS ya JS file badlo to ye version badal do (jaise `?v=20261121a`). Warna logon ke phone purani cached file chalate rahenge.
 
 ## Animations aur 3D barbell
 
@@ -67,6 +67,8 @@ Uske baad `index.html` mein `?v=` badalna mat bhoolna.
 **Har client ka code alag.** Code aisa dikhta hai: `LL-2BR-9ZGH-A3KMN`. Ek hi din do clients ke code banao to bhi dono alag honge. Purane chhote codes (`LL-2BR-RPNAL` jaise) bhi chalte rahenge.
 
 **Codes ki list:** coach page par neeche "Codes you've made" mein har code ka client, number, payment date, expiry aur Active/Expired dikhta hai. Ye list usi phone/laptop mein save hoti hai jisse code banaya, isliye codes hamesha ek hi device se banao.
+
+**Details save nahi hoti.** Har baar site kholne par form bilkul khaali milta hai. Paid client ka code phone mein rehta hai, wo bas apni details dobara bhare aur plan khul jayega.
 
 **Ek code = ek insaan.** Code daalte waqt jiski details bhari hoti hain (naam, gender, umar, height), plan sirf usi ke liye khulta hai. Wo apna weight, goal, food ya workout badal sakta hai. Usi phone par kisi doosre insaan ki details bharoge to plan lock ho jayega, aur use apna code chahiye hoga.
 
